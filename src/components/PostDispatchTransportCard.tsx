@@ -59,11 +59,11 @@ export const PostDispatchTransportCard: React.FC<PostDispatchTransportCardProps>
                     : language === 'hi'
                     ? 'दोनों वाहन चुने गए मिलन स्थल की ओर अग्रसर हैं। किसी भी स्थिति में आप पुनः अपने मूल स्थान पर एम्बुलेंस बुला सकते हैं।'
                     : 'Both vehicles are approaching the designated meeting spot. You can safely revert to direct pickup anytime.')
-                  : (language === 'mr'
-                    ? 'रुग्णवाहिका थेट तुमच्या स्थानाकडे येत आहे. जर तुमच्याकडे स्वतःचे वाहन असेल तर आपण इच्छित स्थळाकडे प्रवास करून रुग्णवाहिकेला लवकर भेटू शकता.'
+                    : (language === 'mr'
+                    ? 'रुग्णवाहिका थेट तुमच्या स्थानाकडे येत आहे. जर तुमच्याकडे स्वतःचे वाहन असेल, तर आमची प्रणाली आपोआप सर्वोत्तम भेट ठिकाण ठरवू शकते (किंवा तुम्ही स्वतः निवडू शकता) जेणेकरून उपचार लवकर मिळतील.'
                     : language === 'hi'
-                    ? 'एम्बुलेंस सीधे आपके स्थान की ओर आ रही है। यदि आपके पास अपना वाहन है, तो आप किसी वांछित स्थल की ओर यात्रा करके तेजी से मिल सकते हैं।'
-                    : 'Ambulance is en route directly to your location. If you have local transport, you can travel towards a desired meeting point to meet the ambulance and receive paramedic care faster.')}
+                    ? 'एम्बुलेंस सीधे आपके स्थान की ओर आ रही है। यदि आपके पास अपना वाहन है, तो हमारा सॉफ्टवेयर स्वतः सबसे अच्छा मिलन स्थल तय कर सकता है (या आप स्वयं चुन सकते हैं) ताकि तेजी से उपचार मिल सके।'
+                    : 'Ambulance is en route directly to your location. If you have local transport, our software can automatically find the best midway meeting spot (or you can pick manually) to meet the ambulance and receive paramedic care faster.')}
               </p>
             </div>
           </div>
@@ -85,7 +85,7 @@ export const PostDispatchTransportCard: React.FC<PostDispatchTransportCardProps>
                 className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer active:scale-95"
               >
                 <Navigation className="w-4 h-4" />
-                <span>{language === 'mr' ? 'इच्छित स्थळाकडे प्रवास करा' : language === 'hi' ? 'वांछित स्थल की ओर यात्रा करें' : 'Travel to Desired Location'}</span>
+                <span>{language === 'mr' ? 'भेट ठिकाणाकडे प्रवास करा (ऑटो / मॅन्युअल)' : language === 'hi' ? 'मिलन स्थल की ओर यात्रा करें (ऑटो / मैनुअल)' : 'Travel to Meeting Spot (Auto / Manual)'}</span>
               </button>
             )}
           </div>
