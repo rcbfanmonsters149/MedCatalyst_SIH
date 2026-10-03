@@ -3,7 +3,6 @@ import {
   Mic, 
   MicOff, 
   Languages, 
-  Send, 
   X, 
   CheckCircle2, 
   MapPin,
@@ -13,45 +12,165 @@ import {
 } from './icons';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
+import { LanguageCode } from '../locales';
 
 export type VoiceLanguage = 'hi-IN' | 'mr-IN' | 'en-IN';
 
 export interface EmergencyPreset {
-  label: string;
+  id: string;
   icon: string;
-  en: string;
-  hi: string;
-  mr: string;
+  label: {
+    en: string;
+    hi: string;
+    mr: string;
+  };
+  symptom: {
+    en: string;
+    hi: string;
+    mr: string;
+  };
 }
 
 const EMERGENCY_PRESETS: EmergencyPreset[] = [
   {
-    label: 'Road Accident',
+    id: 'road-accident',
     icon: '🚗',
-    en: 'Severe road collision, patient bleeding heavily with head injury',
-    hi: 'सड़क पर भीषण दुर्घटना, सिर पर गहरी चोट और भारी रक्तस्राव',
-    mr: 'रस्त्यावर भीषण अपघात, डोक्याला गंभीर दुखापत आणि रक्तस्त्राव'
+    label: {
+      en: 'Road Accident',
+      hi: 'सड़क दुर्घटना',
+      mr: 'रस्ता अपघात'
+    },
+    symptom: {
+      en: 'Severe road collision, patient bleeding heavily with head injury',
+      hi: 'सड़क पर भीषण दुर्घटना, सिर पर गहरी चोट और भारी रक्तस्राव',
+      mr: 'रस्त्यावर भीषण अपघात, डोक्याला गंभीर दुखापत आणि रक्तस्त्राव'
+    }
   },
   {
-    label: 'Cardiac / Heart',
+    id: 'cardiac',
     icon: '🫀',
-    en: 'Crushing chest pain, left arm numbness and breathlessness',
-    hi: 'सीने में असहनीय दर्द, बाएं हाथ में सुन्नता और सांस फूलना',
-    mr: 'छातीत असह्य वेदना, डाव्या हाताला मुंग्या आणि धाप लागणे'
+    label: {
+      en: 'Cardiac / Heart',
+      hi: 'हार्ट अटैक / हृदय',
+      mr: 'हृदयविकार / हार्ट अटॅक'
+    },
+    symptom: {
+      en: 'Crushing chest pain, left arm numbness and breathlessness',
+      hi: 'सीने में असहनीय दर्द, बाएं हाथ में सुन्नता और सांस फूलना',
+      mr: 'छातीत असह्य वेदना, डाव्या हाताला मुंग्या आणि धाप लागणे'
+    }
   },
   {
-    label: 'Maternity Labor',
+    id: 'maternity',
     icon: '👶',
-    en: 'Active labor pains with severe water break, urgent delivery transit needed',
-    hi: 'प्रसव पीड़ा अत्यधिक बढ़ गई है, तुरंत प्रसूति एम्बुलेंस की आवश्यकता',
-    mr: 'प्रसूती वेदना तीव्र झाल्या आहेत, तत्काळ रुग्णवाहिकेची गरज'
+    label: {
+      en: 'Maternity Labor',
+      hi: 'प्रसव पीड़ा (लेबर)',
+      mr: 'प्रसूती वेदना'
+    },
+    symptom: {
+      en: 'Active labor pains with severe water break, urgent delivery transit needed',
+      hi: 'प्रसव पीड़ा अत्यधिक बढ़ गई है, तुरंत प्रसूति एम्बुलेंस की आवश्यकता',
+      mr: 'प्रसूती वेदना तीव्र झाल्या आहेत, तत्काळ रुग्णवाहिकेची गरज'
+    }
   },
   {
-    label: 'Unconscious / Stroke',
+    id: 'stroke',
     icon: '🧠',
-    en: 'Patient suddenly collapsed, unresponsive with slurred speech',
-    hi: 'मरीज अचानक बेहोश हो गए हैं, कोई प्रतिक्रिया नहीं दे रहे',
-    mr: 'रुग्ण अचानक बेशुद्ध पडले आहेत, हालचाल थांबली आहे'
+    label: {
+      en: 'Unconscious / Stroke',
+      hi: 'बेहोशी / पक्षाघात',
+      mr: 'बेशुद्ध / पक्षाघात'
+    },
+    symptom: {
+      en: 'Patient suddenly collapsed, unresponsive with slurred speech',
+      hi: 'मरीज अचानक बेहोश हो गए हैं, कोई प्रतिक्रिया नहीं दे रहे',
+      mr: 'रुग्ण अचानक बेशुद्ध पडले आहेत, हालचाल थांबली आहे'
+    }
+  },
+  {
+    id: 'breathing',
+    icon: '🫁',
+    label: {
+      en: 'Severe Breathing',
+      hi: 'सांस में तकलीफ',
+      mr: 'तीव्र श्वसन त्रास'
+    },
+    symptom: {
+      en: 'Acute breathing difficulty, gasping for air, severe asthma or choking',
+      hi: 'सांस लेने में भारी तकलीफ, दम फूल रहा है और ऑक्सीजन स्तर गिर रहा है',
+      mr: 'श्वास घेण्यास तीव्र अडथळा, धाप लागणे आणि ऑक्सिजन कमी होणे'
+    }
+  },
+  {
+    id: 'snake-bite',
+    icon: '🐍',
+    label: {
+      en: 'Snake Bite / Toxin',
+      hi: 'सांप का काटना / जहर',
+      mr: 'सर्पदंश / विषबाधा'
+    },
+    symptom: {
+      en: 'Venomous snake bite with swelling and dizziness, urgent antivenom required',
+      hi: 'जहरीले सांप ने काटा है, अत्यधिक सूजन और चक्कर, तुरंत एंटीवेनम की जरूरत',
+      mr: 'विषारी सापाने दंश केला आहे, तीव्र सूज व चक्कर, तत्काळ अँटीव्हेनम आवश्यक'
+    }
+  },
+  {
+    id: 'burns',
+    icon: '🔥',
+    label: {
+      en: 'Severe Burns / Fire',
+      hi: 'गंभीर जलन / आग',
+      mr: 'आगीत भाजणे'
+    },
+    symptom: {
+      en: 'Critical burn injuries from fire or boiling fluid, deep tissue trauma',
+      hi: 'आग या गर्म तरल से गंभीर रूप से झुलस गए हैं, त्वचा को भारी क्षति',
+      mr: 'आग किंवा उकळत्या पाण्याने गंभीर भाजले आहे, त्वचेची तीव्र हानी'
+    }
+  },
+  {
+    id: 'electric-shock',
+    icon: '⚡',
+    label: {
+      en: 'Electric Shock',
+      hi: 'बिजली का करंट',
+      mr: 'विजेचा धक्का'
+    },
+    symptom: {
+      en: 'High-voltage electric shock, patient collapsed with irregular pulse',
+      hi: 'तेज बिजली का करंट लगा है, मरीज गिर पड़ा और नाड़ी अनियमित है',
+      mr: 'जोरदार विजेचा झटका लागला आहे, रुग्ण खाली पडला व नाडी मंदावली'
+    }
+  },
+  {
+    id: 'fracture',
+    icon: '🦴',
+    label: {
+      en: 'Fall / Fracture',
+      hi: 'गिरना / फ्रैक्चर',
+      mr: 'उंचावरून पडणे / फ्रॅक्चर'
+    },
+    symptom: {
+      en: 'Fall from height with suspected spine or bone fracture, unable to move',
+      hi: 'ऊंचाई से गिरे हैं, रीढ़ या हड्डी में फ्रैक्चर की आशंका, हिल नहीं पा रहे',
+      mr: 'उंचावरून पडल्याने हाड किंवा मणक्याला गंभीर मार, हालचाल अशक्य'
+    }
+  },
+  {
+    id: 'seizures',
+    icon: '🌡️',
+    label: {
+      en: 'High Fever / Fits',
+      hi: 'तेज बुखार / दौरे',
+      mr: 'तीव्र ताप / झटके'
+    },
+    symptom: {
+      en: 'Patient having severe convulsions, violent shaking, and high grade fever',
+      hi: 'तेज बुखार के साथ दौरे और शरीर में तेज कंपकंपी हो रही है',
+      mr: 'तीव्र तापाने अंगात झटके व कंप सुटला आहे, तत्काळ वैद्यकीय मदत हवी'
+    }
   }
 ];
 
@@ -67,7 +186,7 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
   onSubmitDispatch
 }) => {
   const { userLocation } = useApp();
-  const { language, tr } = useLanguage();
+  const { language, setLanguage, tr } = useLanguage();
 
   // Convert system language code to speech recognition locale
   const initialSpeechLang: VoiceLanguage = language === 'mr' ? 'mr-IN' : language === 'hi' ? 'hi-IN' : 'en-IN';
@@ -77,7 +196,6 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
   const [isListening, setIsListening] = useState<boolean>(false);
   const [speechError, setSpeechError] = useState<string | null>(null);
   const [audioLevel, setAudioLevel] = useState<number>(0);
-  const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
 
   const recognitionRef = useRef<any>(null);
   const audioIntervalRef = useRef<any>(null);
@@ -86,7 +204,6 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
   useEffect(() => {
     if (isOpen) {
       setSelectedLang(language === 'mr' ? 'mr-IN' : language === 'hi' ? 'hi-IN' : 'en-IN');
-      setIsConfirmed(false);
       setSpeechError(null);
     }
   }, [isOpen, language]);
@@ -100,6 +217,29 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
       }
     };
   }, []);
+
+  const handleLanguageChange = (newLang: LanguageCode) => {
+    setLanguage(newLang);
+    const speechCode: VoiceLanguage = newLang === 'mr' ? 'mr-IN' : newLang === 'hi' ? 'hi-IN' : 'en-IN';
+    setSelectedLang(speechCode);
+
+    if (isListening) {
+      stopListening();
+    }
+
+    // If the current problemText corresponds to one of the presets in any language, update it to the new language
+    const current = problemText.trim();
+    if (current) {
+      const matched = EMERGENCY_PRESETS.find(p => 
+        p.symptom.en.trim() === current || 
+        p.symptom.hi.trim() === current || 
+        p.symptom.mr.trim() === current
+      );
+      if (matched) {
+        setProblemText(matched.symptom[newLang]);
+      }
+    }
+  };
 
   const startListening = () => {
     setSpeechError(null);
@@ -215,7 +355,7 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
   };
 
   const handleSelectPreset = (preset: EmergencyPreset) => {
-    const text = selectedLang === 'mr-IN' ? preset.mr : selectedLang === 'hi-IN' ? preset.hi : preset.en;
+    const text = preset.symptom[language] || preset.symptom.en;
     setProblemText(text);
     setSpeechError(null);
   };
@@ -225,9 +365,9 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
     window.speechSynthesis.cancel();
 
     let reply = '';
-    if (selectedLang === 'hi-IN') {
+    if (language === 'hi' || selectedLang === 'hi-IN') {
       reply = 'एम्बुलेंस अनुरोध दर्ज कर लिया गया है। नजदीकी 108 एम्बुलेंस तुरंत रवाना हो रही है।';
-    } else if (selectedLang === 'mr-IN') {
+    } else if (language === 'mr' || selectedLang === 'mr-IN') {
       reply = 'रुग्णवाहिका विनंती नोंदवली गेली आहे. जवळची 108 रुग्णवाहिका तात्काळ निघत आहे.';
     } else {
       reply = 'Ambulance request confirmed. Nearest 108 ambulance is dispatched immediately.';
@@ -264,7 +404,7 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <div 
-        className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-150 relative z-10 space-y-5 max-h-[92vh] overflow-y-auto"
+        className="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-slate-150 relative z-10 space-y-5 max-h-[92vh] overflow-y-auto"
         role="dialog"
         aria-modal="true"
       >
@@ -302,18 +442,18 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
         </div>
 
         {/* Language Selection Bar (Inside Modal) */}
-        <div className="flex items-center justify-between bg-slate-50 p-2 rounded-2xl border border-slate-200/80">
+        <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-50 p-2 sm:p-2.5 rounded-2xl border border-slate-200/80">
           <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5 px-1">
             <Languages className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Speech / Input Language:</span>
+            <span>{tr.citizen.speechInputLanguage || 'Speech / Input Language:'}</span>
           </span>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
-              onClick={() => setSelectedLang('en-IN')}
-              className={`px-3 py-1 rounded-xl text-xs font-bold transition cursor-pointer ${
-                selectedLang === 'en-IN'
-                  ? 'bg-white text-emerald-700 shadow-xs border border-emerald-200 font-bold'
+              onClick={() => handleLanguageChange('en')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                language === 'en'
+                  ? 'bg-white text-emerald-700 shadow-xs border border-emerald-300 ring-2 ring-emerald-500/20'
                   : 'text-slate-600 hover:bg-white/60'
               }`}
             >
@@ -321,10 +461,10 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
             </button>
             <button
               type="button"
-              onClick={() => setSelectedLang('hi-IN')}
-              className={`px-3 py-1 rounded-xl text-xs font-bold transition cursor-pointer ${
-                selectedLang === 'hi-IN'
-                  ? 'bg-white text-emerald-700 shadow-xs border border-emerald-200 font-bold'
+              onClick={() => handleLanguageChange('hi')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                language === 'hi'
+                  ? 'bg-white text-emerald-700 shadow-xs border border-emerald-300 ring-2 ring-emerald-500/20'
                   : 'text-slate-600 hover:bg-white/60'
               }`}
             >
@@ -332,10 +472,10 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
             </button>
             <button
               type="button"
-              onClick={() => setSelectedLang('mr-IN')}
-              className={`px-3 py-1 rounded-xl text-xs font-bold transition cursor-pointer ${
-                selectedLang === 'mr-IN'
-                  ? 'bg-white text-emerald-700 shadow-xs border border-emerald-200 font-bold'
+              onClick={() => handleLanguageChange('mr')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                language === 'mr'
+                  ? 'bg-white text-emerald-700 shadow-xs border border-emerald-300 ring-2 ring-emerald-500/20'
                   : 'text-slate-600 hover:bg-white/60'
               }`}
             >
@@ -356,9 +496,9 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
                 <button
                   type="button"
                   onClick={() => setProblemText('')}
-                  className="text-[11px] text-slate-400 hover:text-red-600 transition"
+                  className="text-[11px] font-semibold text-slate-400 hover:text-red-600 transition cursor-pointer"
                 >
-                  Clear Text
+                  {tr.citizen.clearText || 'Clear Text'}
                 </button>
               )}
             </div>
@@ -369,7 +509,7 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
                 value={problemText}
                 onChange={(e) => setProblemText(e.target.value)}
                 placeholder={tr.citizen.typeProblemPlaceholder}
-                rows={4}
+                rows={3}
                 className="w-full p-4 pr-14 rounded-2xl border border-slate-300 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 text-slate-900 text-sm placeholder:text-slate-400 outline-hidden transition shadow-inner resize-none font-sans"
               />
 
@@ -377,7 +517,7 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
               <button
                 type="button"
                 onClick={handleToggleListening}
-                className={`absolute bottom-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
+                className={`absolute bottom-3.5 right-3.5 w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
                   isListening
                     ? 'bg-red-600 text-white animate-pulse ring-4 ring-red-500/30'
                     : 'bg-amber-500 hover:bg-amber-600 text-white'
@@ -415,25 +555,50 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
             )}
           </div>
 
-          {/* Quick 1-Click Symptom Presets */}
+          {/* Quick 1-Click Symptom Presets (Expanded Shortcuts) */}
           <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Quick 1-Click Preset Shortcuts:
-            </span>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {EMERGENCY_PRESETS.map((preset) => (
-                <button
-                  key={preset.label}
-                  type="button"
-                  onClick={() => handleSelectPreset(preset)}
-                  className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-left transition-all text-xs group cursor-pointer"
-                >
-                  <span className="text-base">{preset.icon}</span>
-                  <p className="font-bold text-slate-800 group-hover:text-emerald-700 mt-1 leading-tight">
-                    {preset.label}
-                  </p>
-                </button>
-              ))}
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                {tr.citizen.quickShortcutsLabel || 'QUICK 1-CLICK PRESET SHORTCUTS:'}
+              </span>
+              <span className="text-[10px] text-slate-400 font-medium">
+                {language === 'mr' ? '१० जलद पर्याय' : language === 'hi' ? '10 त्वरित विकल्प' : '10 Quick Presets'}
+              </span>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+              {EMERGENCY_PRESETS.map((preset) => {
+                const isSelected = 
+                  problemText.trim() === preset.symptom.en.trim() ||
+                  problemText.trim() === preset.symptom.hi.trim() ||
+                  problemText.trim() === preset.symptom.mr.trim();
+                const currentLabel = preset.label[language] || preset.label.en;
+
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => handleSelectPreset(preset)}
+                    className={`p-2.5 rounded-xl border text-left transition-all text-xs group cursor-pointer flex flex-col justify-between min-h-[64px] ${
+                      isSelected
+                        ? 'border-emerald-500 bg-emerald-50/80 shadow-xs ring-2 ring-emerald-500/20'
+                        : 'border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-base leading-none">{preset.icon}</span>
+                      {isSelected && (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      )}
+                    </div>
+                    <p className={`font-bold mt-1 leading-tight text-[11px] sm:text-xs ${
+                      isSelected ? 'text-emerald-800' : 'text-slate-800 group-hover:text-emerald-700'
+                    }`}>
+                      {currentLabel}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -445,15 +610,17 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
                 <span>{tr.citizen.reviewHeading}</span>
               </span>
               <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
-                Review & Confirm
+                {tr.citizen.reviewAndConfirmBadge || 'Review & Confirm'}
               </span>
             </div>
 
-            <div className="bg-white p-3 rounded-xl border border-slate-200 text-xs text-slate-800 font-medium min-h-[36px]">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 text-xs text-slate-800 font-medium min-h-[38px] flex items-center">
               {problemText ? (
                 <span className="text-slate-900 font-semibold leading-relaxed">"{problemText}"</span>
               ) : (
-                <span className="text-slate-400 italic">No symptoms entered yet. Type above or tap the mic button.</span>
+                <span className="text-slate-400 italic">
+                  {tr.citizen.noSymptomsEntered || 'No symptoms entered yet. Type above, select a shortcut, or tap the mic button.'}
+                </span>
               )}
             </div>
 
@@ -462,11 +629,11 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
               <div className="flex items-center gap-1.5 text-slate-700">
                 <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span className="truncate max-w-[280px]">
-                  Pickup: <strong>{userLocation?.areaName || 'Live GPS Coordinates'}</strong>
+                  {tr.citizen.pickupLocationLabel || 'Pickup'}: <strong>{userLocation?.areaName || tr.citizen.liveGpsCoordinates || 'Live GPS Coordinates'}</strong>
                 </span>
               </div>
               <div className="flex items-center gap-1 font-bold text-red-600">
-                <span>🚑 Nearest 108: <strong>~6 mins ETA</strong></span>
+                <span>🚑 {tr.citizen.nearestAmbulanceEta || 'Nearest 108: ~6 mins ETA'}</span>
               </div>
             </div>
           </div>
@@ -492,4 +659,3 @@ export const RaiseAmbulanceRequestModal: React.FC<RaiseAmbulanceRequestModalProp
     </div>
   );
 };
-
