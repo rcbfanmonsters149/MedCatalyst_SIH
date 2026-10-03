@@ -60,7 +60,7 @@ const CitizenPortal: React.FC<{ defaultTab?: ActiveTab }> = ({ defaultTab }) => 
           <EmergencyPage />
         )}
         {activeTab === 'profile' && (
-          <BioDataPage />
+          <BioDataPage onOpenTeleConsult={() => setActiveTab('teleconsult')} />
         )}
         {activeTab === 'teleconsult' && (
           <TeleConsultPage />

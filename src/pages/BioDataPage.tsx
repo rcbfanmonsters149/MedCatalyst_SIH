@@ -27,27 +27,43 @@ import {
   Check,
   QrCode,
   FlaskConical,
-  TestTube
+  TestTube,
+  Clock
 } from '../components/icons';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
-import { PatientRecord } from '../types';
+import { PatientRecord, TeleAppointment } from '../types';
 import { AbhaQrCard } from '../components/biodata/AbhaQrCard';
+import { VirtualQueueTrackerCard } from '../components/teleconsult/VirtualQueueTrackerCard';
+import { VideoConsultModal } from '../components/teleconsult/VideoConsultModal';
 
-export const BioDataPage: React.FC = () => {
+interface BioDataPageProps {
+  onOpenTeleConsult?: () => void;
+}
+
+export const BioDataPage: React.FC<BioDataPageProps> = ({ onOpenTeleConsult }) => {
   const { 
     user, 
     isLoggedIn, 
     setIsLoggedIn, 
     loginUser, 
     verifyPatientRecord, 
-    blockchainNetwork 
+    blockchainNetwork,
+    appointments,
+    updateAppointmentStatus
   } = useApp();
   const { tr, language } = useLanguage();
   const [loginInput, setLoginInput] = useState('');
   const [authError, setAuthError] = useState('');
   const [selectedRecordForPreview, setSelectedRecordForPreview] = useState<PatientRecord | null>(null);
+  const [activeCallAppt, setActiveCallAppt] = useState<TeleAppointment | null>(null);
+
+  // Filter appointments for current patient (active/scheduled queue only)
+  const myAppointments = appointments.filter(a => 
+    (a.patientId === user.id || a.patientAbhaId === user.healthId || a.patientName === user.fullName) &&
+    a.status !== 'COMPLETED' && a.status !== 'CANCELLED'
+  );
 
   // Blockchain & Decentralized Health Vault States
   const [verifyingRecord, setVerifyingRecord] = useState<PatientRecord | null>(null);
@@ -683,6 +699,66 @@ export const BioDataPage: React.FC = () => {
             </div>
           </div>
 
+          {/* My Consultations & Bookings Queue */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="font-bold text-slate-900 text-lg flex items-center gap-2 font-heading">
+                  <Clock className="w-5 h-5 text-teal-600" />
+                  <span>My Consultations & Bookings Queue</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Active video consultation rooms and scheduled appointments for {user.fullName}.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 font-mono">
+                  {myAppointments.length} Active Booking{myAppointments.length === 1 ? '' : 's'}
+                </span>
+                {onOpenTeleConsult && (
+                  <button
+                    type="button"
+                    onClick={onOpenTeleConsult}
+                    className="text-xs font-bold px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl transition cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
+                  >
+                    <Stethoscope className="w-3.5 h-3.5" />
+                    <span>+ Book Tele-Consult</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {myAppointments.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {myAppointments.map(appt => (
+                  <VirtualQueueTrackerCard
+                    key={appt.id}
+                    appointment={appt}
+                    onJoinCall={(a) => setActiveCallAppt(a)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-slate-500 text-xs space-y-3">
+                <Clock className="w-8 h-8 text-slate-300 mx-auto" />
+                <p className="font-medium text-slate-600">You have no active appointments booked yet.</p>
+                <p className="text-slate-400 max-w-sm mx-auto">
+                  Schedule an advance appointment or connect instantly with on-duty government doctors.
+                </p>
+                {onOpenTeleConsult && (
+                  <button
+                    type="button"
+                    onClick={onOpenTeleConsult}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-xs transition cursor-pointer text-xs active:scale-95"
+                  >
+                    <Stethoscope className="w-3.5 h-3.5" />
+                    <span>Book an Online Consultation</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
 
       {/* Cryptographic On-Chain Integrity Proof Modal */}
       {verifyingRecord && (
@@ -998,6 +1074,20 @@ export const BioDataPage: React.FC = () => {
 
           </div>
         </div>
+      )}
+
+      {/* Active Video Consultation Modal */}
+      {activeCallAppt && (
+        <VideoConsultModal
+          isOpen={!!activeCallAppt}
+          onClose={() => setActiveCallAppt(null)}
+          appointment={activeCallAppt}
+          userRole="CITIZEN"
+          onConsultationCompleted={(apptId) => {
+            updateAppointmentStatus(apptId, 'COMPLETED');
+            setActiveCallAppt(null);
+          }}
+        />
       )}
 
     </div>

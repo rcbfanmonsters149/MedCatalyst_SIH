@@ -26,7 +26,8 @@ export const HandoverETAComparisonCard: React.FC<HandoverETAComparisonCardProps>
     confirmPatientHandover,
     recalculateMeetingPointManual,
     stopCaretakerTracking,
-    startCaretakerTracking
+    startCaretakerTracking,
+    setTransportMode
   } = useApp();
   const { language } = useLanguage();
 
@@ -86,17 +87,28 @@ export const HandoverETAComparisonCard: React.FC<HandoverETAComparisonCardProps>
           </div>
         </div>
 
-        {/* Recalculate meeting point trigger */}
+        {/* Recalculate meeting point & revert to direct pickup triggers */}
         {!isCompleted && (
-          <button
-            type="button"
-            onClick={() => recalculateMeetingPointManual()}
-            className="self-start sm:self-center px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
-            title="Recalculate Meeting Point"
-          >
-            <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
-            <span>{language === 'mr' ? 'पुन्हा गणना करा' : language === 'hi' ? 'पुनर्गणना करें' : 'Recalculate Point'}</span>
-          </button>
+          <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
+            <button
+              type="button"
+              onClick={() => recalculateMeetingPointManual()}
+              className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+              title="Recalculate Meeting Point"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+              <span>{language === 'mr' ? 'पुन्हा गणना करा' : language === 'hi' ? 'पुनर्गणना करें' : 'Recalculate Point'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setTransportMode('DIRECT_AMBULANCE')}
+              className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+              title="Cancel travel & request ambulance directly to my location"
+            >
+              <span>{language === 'mr' ? 'माझ्या स्थानावर या' : language === 'hi' ? 'मेरे स्थान पर आएं' : 'Come to My Location'}</span>
+            </button>
+          </div>
         )}
       </div>
 

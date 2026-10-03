@@ -21,7 +21,6 @@ import {
 import { useApp, calculateHaversineKm } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LeafletMap } from '../components/LeafletMap';
-import { LiveAmbulanceTrackerCard } from '../components/LiveAmbulanceTrackerCard';
 import { getCapabilityFriendlyName } from '../utils/mlTriage';
 import { RaiseAmbulanceRequestModal } from '../components/RaiseAmbulanceRequestModal';
 
@@ -37,7 +36,6 @@ export const CitizenPage: React.FC<CitizenPageProps> = ({ onOpenEmergency, onOpe
     selectedHospitalId, 
     setSelectedHospitalId, 
     userLocation, 
-    activeDispatch,
     createEmergencyDispatch 
   } = useApp();
   const { tr, language } = useLanguage();
@@ -489,14 +487,8 @@ export const CitizenPage: React.FC<CitizenPageProps> = ({ onOpenEmergency, onOpe
           height="480px"
           showRideHUD={false}
           showRouteLine={false}
+          showLiveAmbulance={false}
         />
-
-        {/* Dedicated Separate Live Ambulance Telemetry & Route Tracker Card */}
-        {activeDispatch && (
-          <div className="pt-2">
-            <LiveAmbulanceTrackerCard />
-          </div>
-        )}
       </div>
 
       {/* Unified Raise Ambulance Request Modal (Type or Speak + Confirm + Dispatch) */}

@@ -36,6 +36,7 @@ interface LeafletMapProps {
   };
   showLegend?: boolean;
   showRouteLine?: boolean;
+  showLiveAmbulance?: boolean;
 }
 
 // Haversine distance calculator in kilometers
@@ -68,7 +69,8 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
   activeAmbulanceLocation,
   destinationLocation,
   showLegend = true,
-  showRouteLine = false
+  showRouteLine = false,
+  showLiveAmbulance = true
 }) => {
   const { 
     userLocation: contextUserLocation, 
@@ -252,7 +254,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       ];
     }
 
-    if (liveAmbulance) {
+    if (showLiveAmbulance && liveAmbulance) {
       points.push([liveAmbulance.lat, liveAmbulance.lng]);
     }
 
@@ -270,7 +272,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         duration: 1.2
       });
     } catch (e) {}
-  }, [corridorRoute, showReroutePath, rerouteDestination, targetHospital, effectiveUserCoords, liveAmbulance, roadRouteData, activeHandover, caretakerTelemetry]);
+  }, [corridorRoute, showReroutePath, rerouteDestination, targetHospital, effectiveUserCoords, liveAmbulance, roadRouteData, activeHandover, caretakerTelemetry, showLiveAmbulance]);
 
   // When user actively switches hospital selection, smoothly glide to frame the new destination
   useEffect(() => {
@@ -708,7 +710,8 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
     });
 
     // 3. RENDER AMBULANCES
-    ambulances.forEach(amb => {
+    if (showLiveAmbulance) {
+      ambulances.forEach(amb => {
       const isAvailable = amb.status === 'AVAILABLE';
       const ambHtml = `
         <div style="
@@ -745,7 +748,8 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         </div>
       `);
       markersGroup.addLayer(ambMarker);
-    });
+      });
+    }
 
     // 4. DRAW GOOGLE-MAPS STYLE REAL-WORLD ROAD ROUTE (via OSRM)
     if (targetHospital && !corridorRoute) {
@@ -1028,7 +1032,8 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
     corridorRoute,
     activeAmbulanceLocation,
     destinationLocation,
-    roadRouteData
+    roadRouteData,
+    showLiveAmbulance
   ]);
 
   // Dedicated real-time moving ambulance layer update
@@ -1039,7 +1044,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
 
     liveGroup.clearLayers();
 
-    if (!liveAmbulance) return;
+    if (!showLiveAmbulance || !liveAmbulance) return;
 
     const isApproaching = liveAmbulance.phase === 'EN_ROUTE_TO_PATIENT';
     const headingDeg = liveAmbulance.heading || 0;
@@ -1341,7 +1346,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         liveGroup.addLayer(hospitalTransitLine);
       }
     }
-  }, [liveAmbulance, activeHandover, caretakerTelemetry, activeDispatch?.transportMode, hospitals]);
+  }, [liveAmbulance, activeHandover, caretakerTelemetry, activeDispatch?.transportMode, hospitals, showLiveAmbulance]);
 
   return (
     <div className="w-full space-y-2.5">

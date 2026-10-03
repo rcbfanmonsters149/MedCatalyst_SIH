@@ -8,7 +8,6 @@ import {
   AlertTriangle, 
   ShieldAlert, 
   Truck, 
-  Building2, 
   ArrowRight,
   MessageSquare
 } from '../components/icons';
@@ -17,7 +16,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { TollFreeBanner } from '../components/TollFreeBanner';
 import { LeafletMap } from '../components/LeafletMap';
 import { LiveAmbulanceTrackerCard } from '../components/LiveAmbulanceTrackerCard';
-import { HandoverModeSelector } from '../components/HandoverModeSelector';
+import { PostDispatchTransportCard } from '../components/PostDispatchTransportCard';
 import { HandoverETAComparisonCard } from '../components/HandoverETAComparisonCard';
 import { Link } from 'react-router-dom';
 
@@ -214,9 +213,6 @@ export const EmergencyPage: React.FC<EmergencyPageProps> = ({ onNavigateToAmbula
           </span>
         </div>
 
-        {/* MIDWAY AMBULANCE HANDOVER MODE SELECTOR ("I can travel toward the ambulance") */}
-        <HandoverModeSelector />
-
         {/* 3-WAY REAL-TIME ETA COMPARISON (When Meet Halfway Mode is Active) */}
         {dispatch.transportMode === 'MEET_HALFWAY' && (
           <HandoverETAComparisonCard />
@@ -262,88 +258,11 @@ export const EmergencyPage: React.FC<EmergencyPageProps> = ({ onNavigateToAmbula
           <LiveAmbulanceTrackerCard />
         </div>
 
-          {/* TWO-COLUMN LIVE COORDINATION & AUDIT GRID */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            
-            {/* Left 7 Cols: Waterfall Dispatch Audit Trail */}
-            <div className="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-                <div>
-                  <h3 className="font-bold text-slate-900 text-base flex items-center gap-2 font-heading">
-                    <Building2 className="w-5 h-5 text-emerald-600" />
-                    <span>{language === 'mr' ? 'वॉटरफॉल रवानगी इतिहास' : language === 'hi' ? 'वाटरफॉल प्रेषण ऑडिट ट्रेल' : 'Waterfall Dispatch Audit Trail'}</span>
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {language === 'mr' ? 'कडक २-मिनिट एसएलए धोरण: त्वरित प्रवेश सज्जतेची खात्री' : language === 'hi' ? 'सख्त 2-मिनट एसएलए नीति: तत्काल भर्ती तत्परता सुनिश्चित करता है' : 'Strict 2-minute SLA policy: Cascades immediately to ensure immediate intake readiness.'}
-                  </p>
-                </div>
-              </div>
+        {/* POST-DISPATCH TRANSPORT / DESIRED LOCATION COORDINATION OPTION */}
+        <PostDispatchTransportCard />
 
-              {/* Visual Hop Stepper */}
-              <div className="space-y-3 pt-2">
-                {dispatch.waterfallHistory.map((hop, idx) => {
-                  const isAccepted = hop.status === 'ACCEPTED';
-                  const isDeclined = hop.status === 'DECLINED';
-                  const isWaiting = hop.status === 'WAITING';
-
-                  return (
-                    <div 
-                      key={hop.hospitalId + idx}
-                      className={`p-4 rounded-xl border transition-all ${
-                        isAccepted 
-                          ? 'bg-emerald-50/70 border-emerald-300 ring-2 ring-emerald-400/20' 
-                          : isDeclined 
-                          ? 'bg-rose-50/60 border-rose-200 opacity-80' 
-                          : 'bg-amber-50/60 border-amber-200'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-start gap-3">
-                          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 ${
-                            isAccepted 
-                              ? 'bg-emerald-600 text-white' 
-                              : isDeclined 
-                              ? 'bg-rose-600 text-white' 
-                              : 'bg-amber-500 text-white'
-                          }`}>
-                            {idx + 1}
-                          </span>
-                          <div>
-                            <h4 className="text-sm font-bold text-slate-900">
-                              {hop.hospitalName}
-                            </h4>
-                            <p className="text-xs text-slate-600 mt-0.5">
-                              {hop.note}
-                            </p>
-                            <span className="text-[11px] text-slate-400 mt-1 inline-block">
-                              {hop.sentAt}
-                              {hop.responseTimeSeconds !== undefined && ` • ${hop.responseTimeSeconds}s`}
-                            </span>
-                          </div>
-                        </div>
-
-                        <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full border shrink-0 ${
-                          isAccepted 
-                            ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 
-                            : isDeclined 
-                            ? 'bg-rose-100 text-rose-800 border-rose-300' 
-                            : 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse'
-                        }`}>
-                          {isAccepted 
-                            ? (language === 'mr' ? '✓ स्वीकारले' : language === 'hi' ? '✓ स्वीकृत' : '✓ INTAKE ACCEPTED') 
-                            : isDeclined 
-                            ? (language === 'mr' ? '✕ नाकारले' : language === 'hi' ? '✕ अस्वीकृत' : '✕ DECLINED') 
-                            : (language === 'mr' ? '⏳ प्रतीक्षेत' : language === 'hi' ? '⏳ प्रतीक्षा में' : '⏳ AWAITING ACK')}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Right 5 Cols: Bi-directional Communication & Telemetry HUD */}
-            <div className="lg:col-span-5 space-y-6">
+          {/* TWO-COLUMN LIVE COMMUNICATION & PATIENT HUD GRID */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
 
               {/* Real-time Incident Communication Radio */}
               <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
@@ -453,8 +372,6 @@ export const EmergencyPage: React.FC<EmergencyPageProps> = ({ onNavigateToAmbula
                   </Link>
                 </div>
               </div>
-
-            </div>
 
           </div>
 

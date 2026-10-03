@@ -191,6 +191,7 @@ interface AppContextType {
   stopCaretakerTracking: () => void;
   updateCaretakerLocationManual: (lat: number, lng: number) => void;
   recalculateMeetingPointManual: () => Promise<void>;
+  activateRendezvousTravel: (vehicleType?: 'BIKE' | 'AUTO_RICKSHAW' | 'CAR' | 'TRACTOR', customLandmark?: HandoverLandmark) => Promise<void>;
   confirmPatientHandover: () => void;
   isHandoverSimulating: boolean;
   handoverSimSpeed: number;
@@ -2201,6 +2202,68 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [activeDispatch, caretakerTelemetry?.lat, caretakerTelemetry?.lng, userLocation, hospitals, ambulances, ambulanceAssessment]);
 
+  const activateRendezvousTravel = useCallback(async (
+    vehicleType: 'BIKE' | 'AUTO_RICKSHAW' | 'CAR' | 'TRACTOR' = 'BIKE',
+    customLandmark?: HandoverLandmark
+  ) => {
+    if (!activeDispatch) return;
+    const patientLat = caretakerTelemetry?.lat || activeDispatch.pickupLat || userLocation?.lat || 28.7080;
+    const patientLng = caretakerTelemetry?.lng || activeDispatch.pickupLng || userLocation?.lng || 77.0980;
+    const targetHosp = hospitals.find(h => h.id === activeDispatch.currentHospitalId) || hospitals[0] || INITIAL_HOSPITALS[0];
+    const assignedAmb = ambulances.find(a => a.id === activeDispatch.assignedAmbulanceId) || ambulances[0];
+    const ambLat = assignedAmb.currentLat;
+    const ambLng = assignedAmb.currentLng;
+
+    const speedMap = {
+      BIKE: 35,
+      AUTO_RICKSHAW: 30,
+      CAR: 50,
+      TRACTOR: 20
+    };
+    const speed = speedMap[vehicleType] || 35;
+
+    try {
+      const coordination = await calculateDynamicMeetingPoint({
+        caretakerLat: patientLat,
+        caretakerLng: patientLng,
+        ambulanceLat: ambLat,
+        ambulanceLng: ambLng,
+        hospitalLat: targetHosp.lat,
+        hospitalLng: targetHosp.lng,
+        caretakerSpeedKmH: speed,
+        ambulanceSpeedKmH: 55,
+        triageAssessment: activeDispatch.ambulanceAssessment || ambulanceAssessment,
+        customLandmark
+      });
+
+      setActiveHandover(coordination);
+      setActiveDispatch(prev => prev ? {
+        ...prev,
+        transportMode: 'MEET_HALFWAY',
+        handoverStatus: coordination.status,
+        meetingPointCoordination: coordination
+      } : null);
+
+      setCaretakerTelemetry({
+        lat: patientLat,
+        lng: patientLng,
+        speedKmH: speed,
+        heading: 65,
+        vehicleType,
+        isLiveTracking: true,
+        accuracyMeters: 8,
+        lastUpdated: new Date().toLocaleTimeString(),
+        distanceToMeetingKm: coordination.caretakerDistanceKm,
+        etaToMeetingMinutes: coordination.caretakerEtaMinutes,
+        isSimulated: true
+      });
+
+      startCaretakerTracking();
+    } catch (err) {
+      console.warn('Error activating rendezvous travel:', err);
+    }
+  }, [activeDispatch, caretakerTelemetry?.lat, caretakerTelemetry?.lng, userLocation, hospitals, ambulances, ambulanceAssessment, startCaretakerTracking]);
+
   const setTransportMode = useCallback((mode: TransportMode) => {
     if (!activeDispatch) return;
     setActiveDispatch(prev => prev ? {
@@ -3810,6 +3873,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       stopCaretakerTracking,
       updateCaretakerLocationManual,
       recalculateMeetingPointManual,
+      activateRendezvousTravel,
       confirmPatientHandover,
       isHandoverSimulating,
       handoverSimSpeed,

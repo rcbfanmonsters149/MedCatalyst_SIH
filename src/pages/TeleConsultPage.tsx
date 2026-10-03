@@ -231,42 +231,7 @@ export const TeleConsultPage: React.FC = () => {
         </button>
       </div>
 
-      {/* 3. MY CONSULTATIONS QUEUE */}
-      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-xs space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div>
-            <h2 className="text-lg font-extrabold text-slate-900 font-heading flex items-center gap-2">
-              <Clock className="w-5 h-5 text-teal-600" />
-              <span>My Consultations & Bookings Queue</span>
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Active video consultation rooms and scheduled appointments for {user.fullName}.
-            </p>
-          </div>
-          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 font-mono">
-            {myAppointments.length} Bookings
-          </span>
-        </div>
-
-        {myAppointments.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {myAppointments.map(appt => (
-              <VirtualQueueTrackerCard
-                key={appt.id}
-                appointment={appt}
-                onJoinCall={(a) => setActiveCallAppt(a)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-6 text-slate-500 text-xs space-y-2">
-            <Clock className="w-8 h-8 text-slate-300 mx-auto" />
-            <p>You have no active appointments booked yet. Choose an on-duty doctor below to start or schedule a consultation.</p>
-          </div>
-        )}
-      </div>
-
-      {/* 4. DOCTOR DIRECTORY: Mode A (Instant) vs Mode B (Schedule) - ONLY AVAILABLE DOCTORS */}
+      {/* 3. DOCTOR DIRECTORY: Mode A (Instant) vs Mode B (Schedule) - ONLY AVAILABLE DOCTORS */}
       <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-xs space-y-6">
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
@@ -426,6 +391,41 @@ export const TeleConsultPage: React.FC = () => {
           </div>
         )}
 
+      </div>
+
+      {/* 4. MY CONSULTATIONS QUEUE */}
+      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-xs space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div>
+            <h2 className="text-lg font-extrabold text-slate-900 font-heading flex items-center gap-2">
+              <Clock className="w-5 h-5 text-teal-600" />
+              <span>My Consultations & Bookings Queue</span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Active video consultation rooms and scheduled appointments for {user.fullName}.
+            </p>
+          </div>
+          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 font-mono">
+            {myAppointments.length} Bookings
+          </span>
+        </div>
+
+        {myAppointments.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {myAppointments.map(appt => (
+              <VirtualQueueTrackerCard
+                key={appt.id}
+                appointment={appt}
+                onJoinCall={(a) => setActiveCallAppt(a)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-6 text-slate-500 text-xs space-y-2">
+            <Clock className="w-8 h-8 text-slate-300 mx-auto" />
+            <p>You have no active appointments booked yet. Choose an on-duty doctor above to start or schedule a consultation.</p>
+          </div>
+        )}
       </div>
 
       {/* 5. INSTANT VIDEO CALL CONFIRMATION MODAL */}

@@ -172,6 +172,7 @@ export interface HandoverCalculationParams {
   caretakerSpeedKmH?: number; // default: 35 km/h
   ambulanceSpeedKmH?: number; // default: 55 km/h
   triageAssessment?: AmbulanceAssessmentForm;
+  customLandmark?: HandoverLandmark;
 }
 
 /**
@@ -193,7 +194,8 @@ export async function calculateDynamicMeetingPoint(
     hospitalLng,
     caretakerSpeedKmH = 35,
     ambulanceSpeedKmH = 55,
-    triageAssessment
+    triageAssessment,
+    customLandmark
   } = params;
 
   // 1. Fetch road route between caretaker and ambulance
@@ -207,8 +209,8 @@ export async function calculateDynamicMeetingPoint(
   // Theoretical intersection coordinate along the polyline
   const theoreticalPoint = getPointAlongPolyline(directRoute.coordinates, caretakerFraction);
 
-  // 3. Snap theoretical intersection point to a verified high-safety landmark
-  const safeLandmark = findNearestSafeLandmark(theoreticalPoint.lat, theoreticalPoint.lng);
+  // 3. Snap theoretical intersection point to a verified high-safety landmark or use customLandmark
+  const safeLandmark = customLandmark || findNearestSafeLandmark(theoreticalPoint.lat, theoreticalPoint.lng);
 
   // 4. Concurrently fetch the three practical road legs
   const [caretakerToMeetingRoute, ambulanceToMeetingRoute, meetingToHospitalRoute] = await Promise.all([
