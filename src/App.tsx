@@ -191,6 +191,7 @@ export default function App() {
             <Routes>
               {/* Public Citizen Portal */}
               <Route path="/" element={<CitizenPortal />} />
+              <Route path="/emergency" element={<CitizenPortal defaultTab="emergency" />} />
               <Route path="/teleconsult" element={<CitizenPortal defaultTab="teleconsult" />} />
 
               {/* Doctor Clinical & Tele-OPD Portal */}

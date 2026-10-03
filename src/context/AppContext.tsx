@@ -1920,22 +1920,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [ambulances]);
 
   const [activeDispatch, setActiveDispatch] = useState<EmergencyDispatch | null>(() => {
-    // By default, NO ambulance moves without an explicit user-created emergency request
-    const saved = localStorage.getItem('medcatalyst_active_dispatch');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.id && parsed.id !== 'disp-2026-9041' && parsed.status && parsed.status !== 'ARRIVED' && parsed.status !== 'CANCELLED') {
-          return parsed;
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    // Clean up any stale saved demo dispatches
+    // Every visit begins fresh with the emergency intake banner & map
+    // Clear any stale dispatches so the user always sees the banner and facility map
     try {
       localStorage.removeItem('medcatalyst_active_dispatch');
       localStorage.removeItem('sanjeevani_active_dispatch');
+      sessionStorage.removeItem('medcatalyst_active_dispatch');
     } catch (e) {}
     return null;
   });
@@ -2028,9 +2018,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           { sender: 'PARAMEDIC', text: 'Patient onboard. Vitals recorded in in-ambulance assessment form: GCS 8, SpO2 89%.', timestamp: '01:35 AM', type: 'TEXT' }
         ]
       };
-      try {
-        localStorage.setItem('medcatalyst_active_dispatch', JSON.stringify(updated));
-      } catch (e) {}
       return updated;
     });
 
@@ -2718,10 +2705,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [ambulances]);
 
   useEffect(() => {
-    if (activeDispatch) {
-      localStorage.setItem('medcatalyst_active_dispatch', JSON.stringify(activeDispatch));
-    } else {
-      localStorage.removeItem('medcatalyst_active_dispatch');
+    // Keep localStorage clean of active dispatches
+    if (!activeDispatch) {
+      try {
+        localStorage.removeItem('medcatalyst_active_dispatch');
+      } catch (e) {}
     }
   }, [activeDispatch]);
 
