@@ -63,7 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     {
       to: '/ambulance',
       title: tr.nav.ambulance,
-      desc: 'Cockpit HUD, GPS Routing & Vitals',
+      desc: 'Emergency Dispatch, GPS Routing & Vitals',
       icon: Truck,
       color: 'text-emerald-600 bg-emerald-50 border-emerald-200'
     },

@@ -99,12 +99,12 @@ export const PortalsDropdown: React.FC<PortalsDropdownProps> = ({
     {
       id: 'ambulance' as PortalKey,
       to: '/ambulance',
-      title: tr.nav.ambulance || '108 Ambulance Cockpit',
+      title: tr.nav.ambulance || 'Ambulance Portal',
       desc: language === 'hi'
-        ? 'कॉकपिट HUD, जीपीएस रूटिंग एवं लाइव वाइटल्स'
+        ? 'आपातकालीन प्रेषण, जीपीएस रूटिंग एवं लाइव वाइटल्स'
         : (language === 'mr'
-          ? 'कॉकपिट HUD, जीपीएस रूटिंग व लाईव्ह व्हायटल्स'
-          : 'Cockpit HUD, GPS Routing & Live Vitals'),
+          ? 'आपत्कालीन प्रेषण, जीपीएस रूटिंग व लाईव्ह व्हायटल्स'
+          : 'Emergency Dispatch, GPS Routing & Live Vitals'),
       icon: Truck,
       color: 'text-emerald-600 bg-emerald-50 border-emerald-200'
     },
