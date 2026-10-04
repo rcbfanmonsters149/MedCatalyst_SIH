@@ -2806,19 +2806,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [trafficCorridor.signals, policeUserSignal]);
 
-  // Simulation tick effect
+  // Simulation tick effect - Continuous automatic ambulance movement along traffic corridor
   useEffect(() => {
-    if (!trafficCorridor.isSimulating) return;
+    // Ensure simulation is always active so the ambulance is continuously moving
+    if (!trafficCorridor.isSimulating) {
+      setTrafficCorridor(prev => ({ ...prev, isSimulating: true }));
+      return;
+    }
 
     const intervalMs = Math.max(150, Math.floor(1000 / (trafficCorridor.simulationSpeedMultiplier || 1)));
-    const stepSize = 0.012; // progress delta per tick
+    const stepSize = 0.008; // smooth progress delta per tick
 
     const interval = setInterval(() => {
       setTrafficCorridor(prev => {
-        if (!prev.isSimulating) return prev;
-
-        const nextProgress = Math.min(1.0, prev.simulationProgress + stepSize);
-        const isDone = nextProgress >= 1.0;
+        // Continuous cycle: smoothly wrap back to 0 upon reaching the destination
+        const rawNext = prev.simulationProgress + stepSize;
+        const nextProgress = rawNext >= 1.0 ? 0 : rawNext;
 
         // Slight speed variance 50-54 km/h for realism
         const variance = (Math.random() - 0.5) * 4;
@@ -2840,10 +2843,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           simulationProgress: nextProgress,
           currentLat: currentAmbulancePos[0],
           currentLng: currentAmbulancePos[1],
-          speedKmH: isDone ? 0 : speed,
-          totalEtaMinutes: isDone ? 0 : totalEtaMinutes,
+          speedKmH: speed,
+          totalEtaMinutes,
           signals,
-          isSimulating: !isDone,
+          isSimulating: true, // Always keep moving automatically
         };
       });
     }, intervalMs);

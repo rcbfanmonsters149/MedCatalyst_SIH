@@ -293,7 +293,7 @@ export function createInitialTrafficEmergency(): TrafficCorridorEmergency {
     totalEtaMinutes: 14,
     signals,
     routeCoordinates: DEFAULT_CORRIDOR_ROUTE,
-    isSimulating: false,
+    isSimulating: true,
     simulationProgress: initialProgress,
     simulationSpeedMultiplier: 1,
     automatedGreenWave: true,

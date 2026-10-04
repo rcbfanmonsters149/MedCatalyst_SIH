@@ -1,10 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   ShieldAlert, 
   Navigation, 
-  Play, 
-  Pause, 
-  RotateCcw, 
   MapPin, 
   Clock, 
   Building2, 
@@ -22,12 +19,16 @@ export const TrafficPoliceDashboard: React.FC = () => {
   const {
     trafficCorridor,
     toggleSimulation,
-    setSimulationSpeed,
-    resetSimulation,
-    setSimulationProgressManual,
     policeUserSignal,
     logoutPoliceSignal
   } = useApp();
+
+  // Ensure traffic corridor ambulance is continuously moving automatically
+  useEffect(() => {
+    if (!trafficCorridor.isSimulating) {
+      toggleSimulation(true);
+    }
+  }, [trafficCorridor.isSimulating, toggleSimulation]);
 
   // Find the next upcoming signal along the route
   const nextSignal =
@@ -222,73 +223,7 @@ export const TrafficPoliceDashboard: React.FC = () => {
 
         </div>
 
-        {/* 2. SIMULATION CONTROLS BAR */}
-        <div className="bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-4 shadow-xs">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => toggleSimulation()}
-              className={`px-4 py-2 rounded-xl text-xs font-extrabold transition flex items-center gap-2 shadow-xs ${
-                trafficCorridor.isSimulating
-                  ? 'bg-amber-500 hover:bg-amber-600 text-white'
-                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-              }`}
-            >
-              {trafficCorridor.isSimulating ? (
-                <>
-                  <Pause className="w-4 h-4 fill-white" />
-                  <span>{tr.police.pauseSimulation}</span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4 fill-white" />
-                  <span>{tr.police.startLiveRun}</span>
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={resetSimulation}
-              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition border border-slate-200"
-              title="Reset Route Simulation"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-
-            {/* Speed Multipliers */}
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs font-bold">
-              {[1, 2, 5].map((speed) => (
-                <button
-                  key={speed}
-                  onClick={() => setSimulationSpeed(speed)}
-                  className={`px-2 py-0.5 rounded transition ${
-                    trafficCorridor.simulationSpeedMultiplier === speed
-                      ? 'bg-white text-slate-900 shadow-xs'
-                      : 'text-slate-500 hover:text-slate-900'
-                  }`}
-                >
-                  {speed}x
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Progress Slider */}
-          <div className="flex-1 min-w-[200px] max-w-md flex items-center gap-2">
-            <span className="text-[11px] font-mono text-slate-500 font-bold">Pickup</span>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={trafficCorridor.simulationProgress}
-              onChange={(e) => setSimulationProgressManual(parseFloat(e.target.value))}
-              className="flex-1 accent-emerald-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
-            />
-            <span className="text-[11px] font-mono text-slate-500 font-bold">Hospital</span>
-          </div>
-        </div>
-
-        {/* 3. MAIN DASHBOARD SPLIT: Interactive Map (Left) + Signals on Route Table (Right) */}
+        {/* MAIN DASHBOARD SPLIT: Interactive Map (Left) + Signals on Route Table (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* LEFT: Full Interactive Live Map (7 Cols) */}
