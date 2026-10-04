@@ -176,79 +176,162 @@ export const AmbulanceDashboard: React.FC = () => {
         )}
 
         {/* TAB NAVIGATION BAR */}
-        <div className="flex items-center gap-2 border-b border-slate-200 pb-3 flex-wrap">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* TAB 1: CLINICAL ASSESSMENT */}
           <button
+            type="button"
             onClick={() => handleSelectTab('assessment')}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 cursor-pointer ${
+            className={`p-4 sm:p-4.5 rounded-2xl transition-all duration-200 text-left cursor-pointer flex flex-col justify-between gap-3.5 border ${
               activeTab === 'assessment'
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-500/30 -translate-y-0.5'
+                : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200/90 hover:border-slate-300 shadow-xs hover:shadow-sm'
             }`}
           >
-            <Stethoscope className="w-4 h-4" />
-            <span>{tr.ambulance.clinicalAssessmentTab}</span>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
-              activeTab === 'assessment' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-700'
-            }`}>
-              Full Suite
-            </span>
+            <div className="flex items-center justify-between w-full">
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                activeTab === 'assessment'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-blue-50 text-blue-700 border border-blue-200/60'
+              }`}>
+                <Stethoscope className="w-5 h-5" />
+              </div>
+              <span className={`text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide ${
+                activeTab === 'assessment'
+                  ? 'bg-white text-blue-700 shadow-2xs'
+                  : 'bg-blue-50 text-blue-700 border border-blue-200'
+              }`}>
+                Full Suite
+              </span>
+            </div>
+
+            <div className="pt-0.5">
+              <span className={`block text-[10px] font-mono font-bold tracking-wider uppercase mb-0.5 ${
+                activeTab === 'assessment' ? 'text-blue-100' : 'text-slate-400'
+              }`}>
+                01 • CLINICAL TRIAGE
+              </span>
+              <h3 className="font-extrabold text-sm sm:text-base leading-snug font-heading">
+                {tr.ambulance.clinicalAssessmentTab}
+              </h3>
+            </div>
           </button>
 
+          {/* TAB 2: INCIDENT DISPATCH & NAVIGATION */}
           <button
+            type="button"
             onClick={() => handleSelectTab('dispatch')}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 cursor-pointer ${
+            className={`p-4 sm:p-4.5 rounded-2xl transition-all duration-200 text-left cursor-pointer flex flex-col justify-between gap-3.5 border ${
               activeTab === 'dispatch'
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-500/30 -translate-y-0.5'
+                : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200/90 hover:border-slate-300 shadow-xs hover:shadow-sm'
             }`}
           >
-            <Truck className="w-4 h-4" />
-            <span>{tr.ambulance.dispatchTrackerTab}</span>
-            {activeDispatch && (
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
-                activeTab === 'dispatch' ? 'bg-blue-700 text-white' : 'bg-red-50 text-red-700'
+            <div className="flex items-center justify-between w-full">
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                activeTab === 'dispatch'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-rose-50 text-rose-700 border border-rose-200/60'
               }`}>
+                <Truck className="w-5 h-5" />
+              </div>
+              <span className={`text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide flex items-center gap-1.5 ${
+                activeTab === 'dispatch'
+                  ? 'bg-white text-rose-700 shadow-2xs'
+                  : 'bg-red-50 text-red-700 border border-red-200'
+              }`}>
+                <span className="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
                 Active SOS
               </span>
-            )}
-          </button>
+            </div>
 
-          <button
-            onClick={() => handleSelectTab('handover')}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 cursor-pointer ${
-              activeTab === 'handover'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
-            }`}
-          >
-            <span>🤝</span>
-            <span>Midway Handover</span>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
-              activeDispatch?.transportMode === 'MEET_HALFWAY'
-                ? (activeTab === 'handover' ? 'bg-amber-400 text-amber-950 animate-pulse' : 'bg-amber-100 text-amber-900 border border-amber-300 animate-pulse')
-                : (activeTab === 'handover' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600')
-            }`}>
-              {activeDispatch?.transportMode === 'MEET_HALFWAY' ? 'MEET-ME ACTIVE' : 'READY'}
-            </span>
-          </button>
-
-          <button
-            onClick={() => handleSelectTab('radio')}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 cursor-pointer ${
-              activeTab === 'radio'
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
-            }`}
-          >
-            <Radio className="w-4 h-4" />
-            <span>{tr.ambulance.radioCommsTab}</span>
-            {messageCount > 0 && (
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
-                activeTab === 'radio' ? 'bg-blue-700 text-white' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+            <div className="pt-0.5">
+              <span className={`block text-[10px] font-mono font-bold tracking-wider uppercase mb-0.5 ${
+                activeTab === 'dispatch' ? 'text-blue-100' : 'text-slate-400'
               }`}>
-                {messageCount} msgs
+                02 • GPS NAVIGATION
               </span>
-            )}
+              <h3 className="font-extrabold text-sm sm:text-base leading-snug font-heading">
+                {tr.ambulance.dispatchTrackerTab}
+              </h3>
+            </div>
+          </button>
+
+          {/* TAB 3: MIDWAY HANDOVER */}
+          <button
+            type="button"
+            onClick={() => handleSelectTab('handover')}
+            className={`p-4 sm:p-4.5 rounded-2xl transition-all duration-200 text-left cursor-pointer flex flex-col justify-between gap-3.5 border ${
+              activeTab === 'handover'
+                ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-500/25 ring-2 ring-emerald-500/30 -translate-y-0.5'
+                : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200/90 hover:border-slate-300 shadow-xs hover:shadow-sm'
+            }`}
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-xl transition-colors ${
+                activeTab === 'handover'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+              }`}>
+                🤝
+              </div>
+              <span className={`text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide ${
+                activeDispatch?.transportMode === 'MEET_HALFWAY'
+                  ? (activeTab === 'handover' ? 'bg-amber-300 text-amber-950 animate-pulse font-black' : 'bg-amber-100 text-amber-900 border border-amber-300 animate-pulse font-black')
+                  : (activeTab === 'handover' ? 'bg-white text-emerald-800 shadow-2xs font-extrabold' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')
+              }`}>
+                {activeDispatch?.transportMode === 'MEET_HALFWAY' ? 'MEET-ME ACTIVE' : 'READY'}
+              </span>
+            </div>
+
+            <div className="pt-0.5">
+              <span className={`block text-[10px] font-mono font-bold tracking-wider uppercase mb-0.5 ${
+                activeTab === 'handover' ? 'text-emerald-100' : 'text-slate-400'
+              }`}>
+                03 • DUAL RENDEZVOUS
+              </span>
+              <h3 className="font-extrabold text-sm sm:text-base leading-snug font-heading">
+                Midway Handover
+              </h3>
+            </div>
+          </button>
+
+          {/* TAB 4: 2-WAY RADIO COMMS */}
+          <button
+            type="button"
+            onClick={() => handleSelectTab('radio')}
+            className={`p-4 sm:p-4.5 rounded-2xl transition-all duration-200 text-left cursor-pointer flex flex-col justify-between gap-3.5 border ${
+              activeTab === 'radio'
+                ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-500/30 -translate-y-0.5'
+                : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200/90 hover:border-slate-300 shadow-xs hover:shadow-sm'
+            }`}
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                activeTab === 'radio'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-indigo-50 text-indigo-700 border border-indigo-200/60'
+              }`}>
+                <Radio className="w-5 h-5" />
+              </div>
+              <span className={`text-[11px] px-2.5 py-1 rounded-full font-mono font-bold uppercase tracking-wide ${
+                activeTab === 'radio'
+                  ? 'bg-white text-blue-700 shadow-2xs'
+                  : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              }`}>
+                {messageCount > 0 ? `${messageCount} msgs` : 'LIVE CHANNEL'}
+              </span>
+            </div>
+
+            <div className="pt-0.5">
+              <span className={`block text-[10px] font-mono font-bold tracking-wider uppercase mb-0.5 ${
+                activeTab === 'radio' ? 'text-blue-100' : 'text-slate-400'
+              }`}>
+                04 • ENCRYPTED RADIO
+              </span>
+              <h3 className="font-extrabold text-sm sm:text-base leading-snug font-heading">
+                {tr.ambulance.radioCommsTab}
+              </h3>
+            </div>
           </button>
         </div>
 
