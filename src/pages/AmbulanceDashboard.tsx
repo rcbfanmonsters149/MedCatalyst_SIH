@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Truck, 
   Activity, 
@@ -40,6 +40,7 @@ export const AmbulanceDashboard: React.FC = () => {
     ambulances, 
     updateAmbulanceStatus,
     activeDispatch, 
+    createEmergencyDispatch,
     hospitals, 
     loadPresetScenario,
     greenCorridorActive,
@@ -58,6 +59,32 @@ export const AmbulanceDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AmbulanceSubTab>('assessment');
   const [chatInput, setChatInput] = useState('');
   const [notification, setNotification] = useState<string | null>(null);
+
+  // Auto-initialize inbound emergency dispatch if none active, ensuring
+  // that live navigation, GPS route, patient telemetry, and intake hospital
+  // are immediately displayed rather than an empty placeholder.
+  useEffect(() => {
+    if (!activeDispatch) {
+      createEmergencyDispatch(
+        'Severe acute crushing chest pain radiating to left jaw & arm, diaphoresis (Acute Coronary Syndrome)',
+        undefined,
+        'CRITICAL',
+        hospitals[0]?.id
+      );
+    }
+  }, [activeDispatch, createEmergencyDispatch, hospitals]);
+
+  const handleSelectTab = (tab: AmbulanceSubTab) => {
+    if ((tab === 'dispatch' || tab === 'handover') && !activeDispatch) {
+      createEmergencyDispatch(
+        'Severe acute crushing chest pain radiating to left jaw & arm, diaphoresis (Acute Coronary Syndrome)',
+        undefined,
+        'CRITICAL',
+        hospitals[0]?.id
+      );
+    }
+    setActiveTab(tab);
+  };
 
   const amb = ambulanceUser || ambulances[0];
 
@@ -151,7 +178,7 @@ export const AmbulanceDashboard: React.FC = () => {
         {/* TAB NAVIGATION BAR */}
         <div className="flex items-center gap-2 border-b border-slate-200 pb-3 flex-wrap">
           <button
-            onClick={() => setActiveTab('assessment')}
+            onClick={() => handleSelectTab('assessment')}
             className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 cursor-pointer ${
               activeTab === 'assessment'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
@@ -168,7 +195,7 @@ export const AmbulanceDashboard: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setActiveTab('dispatch')}
+            onClick={() => handleSelectTab('dispatch')}
             className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 cursor-pointer ${
               activeTab === 'dispatch'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
@@ -187,7 +214,7 @@ export const AmbulanceDashboard: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setActiveTab('handover')}
+            onClick={() => handleSelectTab('handover')}
             className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 cursor-pointer ${
               activeTab === 'handover'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
@@ -206,7 +233,7 @@ export const AmbulanceDashboard: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setActiveTab('radio')}
+            onClick={() => handleSelectTab('radio')}
             className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 cursor-pointer ${
               activeTab === 'radio'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
@@ -434,14 +461,97 @@ export const AmbulanceDashboard: React.FC = () => {
 
               </div>
             ) : (
-              <div className="p-8 bg-white border border-slate-200 rounded-3xl shadow-xs text-center space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center mx-auto">
-                  <Clock className="w-6 h-6" />
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 font-bold shrink-0">
+                      <Truck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black font-mono px-2 py-0.5 bg-blue-100 text-blue-800 rounded-md">
+                          STANDBY READY
+                        </span>
+                        <span className="text-xs text-slate-500 font-mono font-bold">
+                          {amb.vehicleNumber}
+                        </span>
+                      </div>
+                      <h3 className="font-extrabold text-base text-slate-900 mt-0.5">
+                        Ambulance Fleet Live Navigation & Standby Status
+                      </h3>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      createEmergencyDispatch(
+                        'Severe acute crushing chest pain radiating to left jaw & arm, diaphoresis (Acute Coronary Syndrome)',
+                        undefined,
+                        'CRITICAL',
+                        hospitals[0]?.id
+                      );
+                      triggerNotify('Emergency 108 Dispatch Dispatched & Live Navigation Engaged!');
+                    }}
+                    className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2 cursor-pointer"
+                  >
+                    <Zap className="w-4 h-4" />
+                    <span>Engage Live Emergency Incident (108 SOS)</span>
+                  </button>
                 </div>
-                <h3 className="font-bold text-base text-slate-900">{tr.ambulance.noActiveDispatches}</h3>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  Ambulance {amb.vehicleNumber} is currently available in the fleet pool. When a citizen triggers an SOS or an ASHA worker reports an accident, the incident card and GPS route will show here.
-                </p>
+
+                {/* Standby Metrics Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-1">
+                    <span className="text-slate-400 uppercase font-bold text-[10px]">Fleet Assignment:</span>
+                    <p className="font-bold text-slate-900 text-sm mt-0.5">{amb.vehicleNumber} ({amb.type})</p>
+                    <p className="text-slate-600">Base: {amb.hospitalName}</p>
+                    <p className="text-slate-500">Driver: {amb.driverName} • {amb.driverPhone}</p>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-1">
+                    <span className="text-slate-400 uppercase font-bold text-[10px]">Base Hospital Command:</span>
+                    <p className="font-bold text-slate-900 text-sm mt-0.5">{currentHospital.name}</p>
+                    <p className="text-slate-500 text-[11px]">{currentHospital.address}</p>
+                    <p className="text-emerald-700 font-bold text-[11px]">ER Ready • Trauma Team Standing By</p>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+                    <span className="text-slate-400 uppercase font-bold text-[10px]">Quick Actions:</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        createEmergencyDispatch(
+                          'Severe acute crushing chest pain radiating to left jaw & arm, diaphoresis (Acute Coronary Syndrome)',
+                          undefined,
+                          'CRITICAL',
+                          hospitals[0]?.id
+                        );
+                        triggerNotify('Live SOS Incident Activated!');
+                      }}
+                      className="w-full p-2.5 bg-white hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-semibold text-center transition border border-slate-200 shadow-2xs cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-500" />
+                      <span>Load Active Emergency Dispatch</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Map View */}
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-emerald-600" />
+                    <span>Live Fleet & Base Navigation Map</span>
+                  </h4>
+                  <div className="rounded-2xl overflow-hidden border border-slate-200">
+                    <LeafletMap
+                      hospitals={hospitals}
+                      pickupLocation={pickupLocation}
+                      selectedHospitalId={currentHospital.id}
+                      height="350px"
+                    />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -457,25 +567,25 @@ export const AmbulanceDashboard: React.FC = () => {
               <div className="space-y-5">
                 
                 {/* Paramedic Emergency Severity Banner */}
-                <div className="bg-slate-900 text-white rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="bg-white text-slate-800 rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-xl shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-xl shrink-0">
                       🤝
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">
-                          PARAMEDIC HANDOVER COCKPIT
+                        <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono">
+                          PARAMEDIC MIDWAY HANDOVER
                         </span>
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-slate-500 font-medium">
                           CALL #{activeDispatch.id} • {activeDispatch.callerName}
                         </span>
                       </div>
-                      <h3 className="font-extrabold text-base sm:text-lg text-white font-heading mt-0.5">
+                      <h3 className="font-extrabold text-base sm:text-lg text-slate-900 font-heading mt-1">
                         {activeDispatch.callerIssue}
                       </h3>
-                      <p className="text-xs text-slate-300 mt-1">
-                        Severity Urgency: <strong className="text-amber-400">{activeDispatch.urgencyLevel}</strong> • Triage Acuity: <strong className="text-emerald-400">{activeDispatch.mlAcuity || 'ESI-2 (Emergent)'}</strong>
+                      <p className="text-xs text-slate-600 mt-1">
+                        Severity Urgency: <strong className="text-amber-600 font-bold">{activeDispatch.urgencyLevel}</strong> • Triage Acuity: <strong className="text-emerald-700 font-bold">{activeDispatch.mlAcuity || 'ESI-2 (Emergent)'}</strong>
                       </p>
                     </div>
                   </div>
@@ -487,16 +597,16 @@ export const AmbulanceDashboard: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => recalculateMeetingPointManual()}
-                          className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 shadow-xs cursor-pointer"
+                          className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-200 shadow-xs cursor-pointer"
                         >
-                          <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
+                          <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
                           <span>Recalculate Point</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={confirmPatientHandover}
-                          className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black transition flex items-center gap-2 shadow-md cursor-pointer transform active:scale-98"
+                          className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black transition flex items-center gap-2 shadow-xs cursor-pointer transform active:scale-98"
                         >
                           <span>🤝</span>
                           <span>CONFIRM PATIENT HANDOVER</span>
@@ -505,7 +615,7 @@ export const AmbulanceDashboard: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setTransportMode('DIRECT_AMBULANCE')}
-                          className="px-3 py-2.5 bg-red-950/80 hover:bg-red-900/90 text-red-200 border border-red-800 rounded-xl text-xs font-bold transition cursor-pointer"
+                          className="px-3 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition cursor-pointer"
                           title="Revert to Direct Pickup"
                         >
                           Revert Direct
@@ -515,7 +625,7 @@ export const AmbulanceDashboard: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setTransportMode('MEET_HALFWAY')}
-                        className="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-xs font-black transition flex items-center gap-2 shadow-md cursor-pointer"
+                        className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black transition flex items-center gap-2 shadow-xs cursor-pointer hover:shadow-md"
                       >
                         <span>🤝</span>
                         <span>Activate Midway Handover Mode</span>
@@ -648,14 +758,32 @@ export const AmbulanceDashboard: React.FC = () => {
 
               </div>
             ) : (
-              <div className="p-8 bg-white border border-slate-200 rounded-3xl shadow-xs text-center space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center mx-auto text-xl">
+              <div className="p-8 bg-white border border-slate-200 rounded-3xl shadow-xs text-center space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto text-2xl">
                   🤝
                 </div>
-                <h3 className="font-bold text-base text-slate-900">No Active Emergency Handover</h3>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  When a citizen requests an emergency ambulance and selects "Meet Ambulance Halfway", live dual tracking and the meet up point cockpit will appear here.
-                </p>
+                <div className="space-y-1">
+                  <h3 className="font-bold text-base text-slate-900">Midway Emergency Handover System Ready</h3>
+                  <p className="text-xs text-slate-500 max-w-md mx-auto">
+                    When a citizen or ASHA worker initiates local transport, live dual-GPS rendezvous tracking and designated safe meet up points are dynamically calculated.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    createEmergencyDispatch(
+                      'Severe acute crushing chest pain radiating to left jaw & arm, diaphoresis (Acute Coronary Syndrome)',
+                      undefined,
+                      'CRITICAL',
+                      hospitals[0]?.id
+                    );
+                    setTransportMode('MEET_HALFWAY');
+                    triggerNotify('Midway Handover Mode Active!');
+                  }}
+                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer"
+                >
+                  Engage Midway Handover Mode (Meet-Me Simulation)
+                </button>
               </div>
             )}
           </div>
