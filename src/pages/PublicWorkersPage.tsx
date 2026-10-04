@@ -1,28 +1,22 @@
 import React, { useState } from 'react';
 import { 
   ShieldCheck, 
-  Car, 
-  TrafficCone, 
   Baby, 
   MapPin, 
-  AlertTriangle, 
   Plus, 
   CheckCircle2, 
   Clock, 
-  Navigation, 
   HeartPulse, 
-  Phone, 
-  Flame, 
-  Radio,
   ArrowLeft,
   Building2,
-  Truck,
-  Heart
+  Heart,
+  AlertTriangle,
+  User,
+  Activity
 } from '../components/icons';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
-import { LeafletMap } from '../components/LeafletMap';
 import { Link } from 'react-router-dom';
 import { PortalsDropdown } from '../components/PortalsDropdown';
 
@@ -30,23 +24,8 @@ export const PublicWorkersPage: React.FC = () => {
   const { tr } = useLanguage();
   const { 
     workerReports, 
-    addWorkerReport, 
-    greenCorridorActive, 
-    setGreenCorridorActive,
-    clearedJunctions,
-    clearTrafficJunction,
-    createEmergencyDispatch,
-    hospitals,
-    activeDispatch
+    addWorkerReport 
   } = useApp();
-
-  const [activeWorkerTab, setActiveWorkerTab] = useState<'POLICE' | 'TRAFFIC' | 'ASHA'>('POLICE');
-
-  // Police Accident Form State
-  const [accidentLocation, setAccidentLocation] = useState('');
-  const [accidentVictims, setAccidentVictims] = useState(1);
-  const [accidentDescription, setAccidentDescription] = useState('');
-  const [policeSosSent, setPoliceSosSent] = useState(false);
 
   // ASHA Survey Form State
   const [ashaMotherName, setAshaMotherName] = useState('');
@@ -55,36 +34,6 @@ export const PublicWorkersPage: React.FC = () => {
   const [ashaHb, setAshaHb] = useState<number | ''>('');
   const [ashaBp, setAshaBp] = useState('');
   const [ashaSaved, setAshaSaved] = useState(false);
-
-  const handlePoliceSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!accidentLocation || !accidentDescription) {
-      alert('Please fill out all required fields');
-      return;
-    }
-    addWorkerReport({
-      workerType: 'POLICE',
-      workerName: 'Sub-Inspector Vikram Rathore',
-      badgeId: 'HP-POL-4482',
-      title: `Highway Road Collision - ${accidentLocation}`,
-      description: accidentDescription,
-      location: accidentLocation,
-      lat: 28.7290,
-      lng: 77.0910,
-      severity: 'CRITICAL',
-      metadata: { victims: accidentVictims }
-    });
-
-    // Automatically trigger immediate 108 ambulance dispatch!
-    createEmergencyDispatch(
-      `[POLICE ROAD CRASH SOS] ${accidentDescription} at ${accidentLocation} (${accidentVictims} victim)`,
-      undefined,
-      'CRITICAL'
-    );
-
-    setPoliceSosSent(true);
-    setTimeout(() => setPoliceSosSent(false), 4000);
-  };
 
   const handleAshaSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,39 +57,40 @@ export const PublicWorkersPage: React.FC = () => {
     });
 
     setAshaSaved(true);
-    setTimeout(() => setAshaSaved(false), 3000);
+    setAshaMotherName('');
+    setAshaVillage('');
+    setAshaGestationalWeeks('');
+    setAshaHb('');
+    setAshaBp('');
+    setTimeout(() => setAshaSaved(false), 3500);
   };
 
-  const junctionsList = [
-    { name: 'Rampur Toll Gate', distanceKm: 1.2, etaMinutes: 2 },
-    { name: 'Bilaspur Bypass Flyover Crossing', distanceKm: 4.8, etaMinutes: 6 },
-    { name: 'Sector 14 Central Junction', distanceKm: 11.5, etaMinutes: 14 },
-    { name: 'Apex Hospital Ring Road Intersect', distanceKm: 22.0, etaMinutes: 26 }
-  ];
+  const ashaReports = workerReports.filter(r => r.workerType === 'ASHA');
+  const highRiskCount = ashaReports.filter(r => r.severity === 'URGENT').length;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between font-sans">
       
-      {/* Top Header Bar with navigation */}
-      <header className="bg-white border-b border-slate-200 py-3.5 px-6 shadow-2xs sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      {/* Top Header Navigation Bar */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/" className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center text-white shadow-md hover:scale-105 transition">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 shrink-0">
               <ShieldCheck className="w-5 h-5" />
-            </Link>
+            </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg tracking-tight font-heading text-slate-900">
-                  Med<span className="text-amber-600">Catalyst</span> Frontline & ASHA
-                </span>
-                <span className="text-[10px] font-mono font-bold bg-amber-50 text-amber-800 px-2.5 py-0.5 rounded-full border border-amber-200 hidden sm:inline">
-                  Public Workers Operations
+                <h1 className="font-extrabold text-lg tracking-tight font-heading text-slate-900 leading-tight">
+                  Frontline and ASHA
+                </h1>
+                <span className="hidden sm:inline-flex text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  Community Health Portal
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <LanguageSelector variant="light" />
 
             <PortalsDropdown currentPortal="workers" />
@@ -148,303 +98,82 @@ export const PublicWorkersPage: React.FC = () => {
             <Link 
               to="/" 
               className="h-10 inline-flex items-center gap-2 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 px-3.5 rounded-xl border border-slate-200 shadow-xs transition cursor-pointer"
-              title="Open the citizen-facing public portal"
+              title="Return to Public Citizen Portal"
             >
               <ArrowLeft className="w-4 h-4 text-slate-500" />
               <span>{tr.common.back} • {tr.nav.citizenPortal}</span>
-            </Link>
-
-            <Link
-              to="/police"
-              className="h-10 hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-amber-900 bg-amber-50 hover:bg-amber-100 px-3 rounded-xl border border-amber-200 shadow-xs transition"
-            >
-              <span>{tr.nav.trafficPolice}</span>
             </Link>
           </div>
         </div>
       </header>
 
+      {/* Main Page Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1 w-full">
-      
-      {/* Top Header */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-amber-600" />
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-200">
-              {tr.asha.title}
-            </span>
+        
+        {/* Portal Header Card */}
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-600" />
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                ASHA Community Health
+              </span>
+            </div>
+            <h2 className="text-2xl font-extrabold text-slate-900 font-heading mt-1">
+              {tr.asha.frontlineHeader || 'Rural Community Health Surveillance'}
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {tr.asha.subtitle || 'Door-to-door village health monitoring, high-risk maternal tracking, severe anemia alerts, and Primary Health Center escalations.'}
+            </p>
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 font-heading mt-1">
-            {tr.asha.frontlineHeader}
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            {tr.asha.subtitle}
-          </p>
+
+          <div className="flex items-center gap-2 bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200 text-xs font-semibold text-emerald-800">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>ASHA Station: Village Kalyanpur Sub-Center</span>
+          </div>
         </div>
 
-        {/* Worker Role Switcher Tabs */}
-        <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 text-xs font-bold w-full md:w-auto">
-          <button
-            onClick={() => setActiveWorkerTab('POLICE')}
-            className={`flex-1 md:flex-none px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
-              activeWorkerTab === 'POLICE'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Car className="w-4 h-4 text-blue-600" />
-            <span>{tr.asha.highwayPolice}</span>
-          </button>
+        {/* 4 Summary KPI Metric Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+              <span className="font-bold uppercase tracking-wider text-[10px]">Mothers Monitored</span>
+              <Baby className="w-4 h-4 text-emerald-600" />
+            </div>
+            <p className="text-2xl font-black text-slate-900 font-mono">38</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">Gram Panchayat Registry</p>
+          </div>
 
-          <button
-            onClick={() => setActiveWorkerTab('TRAFFIC')}
-            className={`flex-1 md:flex-none px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
-              activeWorkerTab === 'TRAFFIC'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <TrafficCone className="w-4 h-4 text-amber-600" />
-            <span>{tr.asha.trafficGreenCorridor}</span>
-          </button>
+          <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+              <span className="font-bold uppercase tracking-wider text-[10px]">High-Risk Flags</span>
+              <AlertTriangle className="w-4 h-4 text-amber-500" />
+            </div>
+            <p className="text-2xl font-black text-amber-600 font-mono">{highRiskCount || 2}</p>
+            <p className="text-[11px] text-amber-700 font-semibold mt-0.5">Escalated to PHC Doctor</p>
+          </div>
 
-          <button
-            onClick={() => setActiveWorkerTab('ASHA')}
-            className={`flex-1 md:flex-none px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
-              activeWorkerTab === 'ASHA'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Baby className="w-4 h-4 text-emerald-600" />
-            <span>{tr.asha.ashaRuralHealth}</span>
-          </button>
+          <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+              <span className="font-bold uppercase tracking-wider text-[10px]">Severe Anemia Alerts</span>
+              <HeartPulse className="w-4 h-4 text-rose-500" />
+            </div>
+            <p className="text-2xl font-black text-rose-600 font-mono">2</p>
+            <p className="text-[11px] text-rose-700 font-semibold mt-0.5">Hb &lt; 8.0 g/dL (IV Iron Plan)</p>
+          </div>
+
+          <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+              <span className="font-bold uppercase tracking-wider text-[10px]">Referral Hub Beds</span>
+              <Building2 className="w-4 h-4 text-blue-600" />
+            </div>
+            <p className="text-2xl font-black text-blue-700 font-mono">3 Free</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">Bilaspur CHC Maternity Unit</p>
+          </div>
         </div>
-      </div>
 
-      {/* TAB 1: POLICE & HIGHWAY PATROL FIRST RESPONDER */}
-      {activeWorkerTab === 'POLICE' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          {/* Left: Road Accident Quick SOS Pin Drop (6 Cols) */}
-          <div className="lg:col-span-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-              <Car className="w-5 h-5 text-blue-600" />
-              <div>
-                <h3 className="font-bold text-base text-slate-900 font-heading">
-                  {tr.asha.policeCrashSosTitle}
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Police officers can pin road traffic accidents and dispatch ambulances for unconscious victims without citizen login.
-                </p>
-              </div>
-            </div>
-
-            <form onSubmit={handlePoliceSubmit} className="space-y-4 pt-1">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  {tr.asha.accidentLocationLandmark}:
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    value={accidentLocation}
-                    onChange={(e) => setAccidentLocation(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g. NH-44 Milestone 38, near Bilaspur bypass"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {tr.asha.injuredVictimsCount}:
-                  </label>
-                  <select
-                    value={accidentVictims}
-                    onChange={(e) => setAccidentVictims(parseInt(e.target.value))}
-                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
-                  >
-                    <option value={1}>1</option>
-                    <option value={2}>2</option>
-                    <option value={3}>3+ Multiple</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Reporting Officer Badge:
-                  </label>
-                  <input
-                    type="text"
-                    disabled
-                    value="SI Vikram Rathore (HP-POL-4482)"
-                    className="w-full px-3 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-600"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  {tr.asha.severityDescription}:
-                </label>
-                <textarea
-                  rows={3}
-                  value={accidentDescription}
-                  onChange={(e) => setAccidentDescription(e.target.value)}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500"
-                  placeholder="Describe vehicle crash, unconscious status, bleeding..."
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Radio className="w-4 h-4" />
-                <span>{policeSosSent ? '108 Ambulance Dispatched to Accident Scene!' : tr.asha.dispatchPoliceSosBtn}</span>
-              </button>
-            </form>
-          </div>
-
-          {/* Right: Police Incident Logs (6 Cols) */}
-          <div className="lg:col-span-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-            <h3 className="font-bold text-base text-slate-900 flex items-center gap-2 pb-2 border-b border-slate-100 font-heading">
-              <Clock className="w-4 h-4 text-slate-400" />
-              <span>{tr.asha.recentHighwayLogs}</span>
-            </h3>
-
-            <div className="space-y-3">
-              {workerReports.filter(r => r.workerType === 'POLICE').map(report => (
-                <div key={report.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-800">{report.title}</span>
-                      <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-100 text-red-800">
-                        {report.severity}
-                      </span>
-                    </div>
-                    <span className="text-[11px] text-slate-400">{report.timestamp}</span>
-                  </div>
-
-                  <p className="text-xs text-slate-600">{report.description}</p>
-                  
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200/50">
-                    <span>Officer: <strong>{report.workerName}</strong> ({report.badgeId})</span>
-                    <span>📍 {report.location}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-      )}
-
-      {/* TAB 2: TRAFFIC POLICE GREEN CORRIDOR */}
-      {activeWorkerTab === 'TRAFFIC' && (
-        <div className="space-y-6">
-          
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-              <div>
-                <div className="flex items-center gap-2">
-                  <TrafficCone className="w-5 h-5 text-amber-600" />
-                  <h3 className="font-bold text-base text-slate-900 font-heading">
-                    {tr.asha.trafficGreenCorridor}
-                  </h3>
-                </div>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Synchronizes upcoming highway junctions with the live GPS route of rerouted emergency ambulances.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <span className={`text-xs font-extrabold px-3 py-1.5 rounded-full border ${
-                  greenCorridorActive 
-                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300 animate-pulse' 
-                    : 'bg-slate-100 text-slate-600 border-slate-200'
-                }`}>
-                  {greenCorridorActive ? tr.asha.activeCorridor : tr.asha.standbyMode}
-                </span>
-
-                <button
-                  onClick={() => setGreenCorridorActive(!greenCorridorActive)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition cursor-pointer"
-                >
-                  {greenCorridorActive ? 'Deactivate Corridor' : 'Activate Green Corridor'}
-                </button>
-              </div>
-            </div>
-
-            {/* Junctions Clearance Table */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
-              {junctionsList.map(junc => {
-                const isCleared = clearedJunctions.includes(junc.name);
-
-                return (
-                  <div 
-                    key={junc.name} 
-                    className={`p-4 rounded-xl border space-y-2 transition ${
-                      isCleared 
-                        ? 'bg-emerald-50/70 border-emerald-300' 
-                        : 'bg-slate-50 border-slate-200'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] uppercase font-bold text-slate-400">Junction Post</span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                        isCleared ? 'bg-emerald-200 text-emerald-900' : 'bg-amber-100 text-amber-900'
-                      }`}>
-                        {isCleared ? 'CLEARED 🟢' : 'HOLD 🟡'}
-                      </span>
-                    </div>
-
-                    <h4 className="font-bold text-xs text-slate-800">{junc.name}</h4>
-                    <p className="text-[11px] text-slate-500">
-                      Ambulance ETA: ~<strong>{junc.etaMinutes} mins</strong> ({junc.distanceKm} km)
-                    </p>
-
-                    <button
-                      onClick={() => clearTrafficJunction(junc.name)}
-                      disabled={isCleared}
-                      className={`w-full py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                        isCleared 
-                          ? 'bg-emerald-600 text-white cursor-default' 
-                          : 'bg-amber-500 hover:bg-amber-600 text-white shadow-2xs'
-                      }`}
-                    >
-                      {isCleared ? tr.asha.trafficCleared : tr.asha.lockGreenSignal}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Map showing Green Corridor Path */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-3">
-            <h4 className="font-bold text-sm text-slate-900">
-              Live Ambulance Corridor Radar
-            </h4>
-            <LeafletMap
-              hospitals={hospitals}
-              pickupLocation={activeDispatch ? { lat: activeDispatch.pickupLat, lng: activeDispatch.pickupLng, label: 'Active SOS Scene' } : undefined}
-              showReroutePath={true}
-              rerouteDestination={hospitals[3]}
-              height="350px"
-            />
-          </div>
-
-        </div>
-      )}
-
-      {/* TAB 3: ASHA RURAL COMMUNITY HEALTH WORKER */}
-      {activeWorkerTab === 'ASHA' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Main 2-Column Split: Field Logger Form & Village Registry Feed */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* Left: ASHA Rural Survey & Vitals Logger (6 Cols) */}
           <div className="lg:col-span-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
@@ -468,8 +197,10 @@ export const PublicWorkersPage: React.FC = () => {
                   </label>
                   <input
                     type="text"
+                    required
                     value={ashaMotherName}
                     onChange={(e) => setAshaMotherName(e.target.value)}
+                    placeholder="e.g. Radhika Sharma"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -480,8 +211,10 @@ export const PublicWorkersPage: React.FC = () => {
                   </label>
                   <input
                     type="text"
+                    required
                     value={ashaVillage}
                     onChange={(e) => setAshaVillage(e.target.value)}
+                    placeholder="e.g. Kalyanpur"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -494,9 +227,13 @@ export const PublicWorkersPage: React.FC = () => {
                   </label>
                   <input
                     type="number"
+                    required
+                    min={1}
+                    max={42}
                     value={ashaGestationalWeeks}
                     onChange={(e) => setAshaGestationalWeeks(e.target.value ? parseInt(e.target.value) : '')}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
+                    placeholder="e.g. 26"
                   />
                   <span className="text-[10px] text-slate-400">Weeks</span>
                 </div>
@@ -507,14 +244,18 @@ export const PublicWorkersPage: React.FC = () => {
                   </label>
                   <input
                     type="number"
+                    required
                     step="0.1"
                     value={ashaHb}
                     onChange={(e) => setAshaHb(e.target.value ? parseFloat(e.target.value) : '')}
+                    placeholder="e.g. 9.5"
                     className={`w-full px-3 py-2 border rounded-xl text-xs font-semibold ${
                       typeof ashaHb === 'number' && ashaHb < 8.0 ? 'bg-rose-50 border-rose-300 text-rose-800' : 'bg-slate-50 border-slate-200'
                     }`}
                   />
-                  <span className="text-[10px] text-slate-400">{typeof ashaHb === 'number' && ashaHb < 8.0 ? tr.asha.anemiaWarning : 'g/dL'}</span>
+                  <span className="text-[10px] text-slate-400">
+                    {typeof ashaHb === 'number' && ashaHb < 8.0 ? '⚠️ Severe Anemia Alert (< 8.0)' : 'g/dL'}
+                  </span>
                 </div>
 
                 <div>
@@ -523,6 +264,7 @@ export const PublicWorkersPage: React.FC = () => {
                   </label>
                   <input
                     type="text"
+                    required
                     value={ashaBp}
                     onChange={(e) => setAshaBp(e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
@@ -534,7 +276,7 @@ export const PublicWorkersPage: React.FC = () => {
 
               <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-center justify-between">
                 <span>Nearest Referral Hub: <strong>Bilaspur CHC (Maternity Unit)</strong></span>
-                <span className="text-[10px] font-bold bg-emerald-200 px-2 py-0.5 rounded">3 Beds Free</span>
+                <span className="text-[10px] font-bold bg-emerald-200 text-emerald-900 px-2.5 py-0.5 rounded-md">3 Beds Free</span>
               </div>
 
               <button
@@ -555,33 +297,38 @@ export const PublicWorkersPage: React.FC = () => {
             </h3>
 
             <div className="space-y-3">
-              {workerReports.filter(r => r.workerType === 'ASHA').map(report => (
-                <div key={report.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-800">{report.title}</span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                        report.severity === 'URGENT' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
-                      }`}>
-                        {report.severity}
-                      </span>
+              {ashaReports.length > 0 ? (
+                ashaReports.map(report => (
+                  <div key={report.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-800">{report.title}</span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                          report.severity === 'URGENT' ? 'bg-rose-100 text-rose-800 border border-rose-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                        }`}>
+                          {report.severity}
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-slate-400">{report.timestamp}</span>
                     </div>
-                    <span className="text-[11px] text-slate-400">{report.timestamp}</span>
-                  </div>
 
-                  <p className="text-xs text-slate-600">{report.description}</p>
-                  
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200/50">
-                    <span>ASHA: <strong>{report.workerName}</strong> ({report.badgeId})</span>
-                    <span>📍 {report.location}</span>
+                    <p className="text-xs text-slate-600">{report.description}</p>
+                    
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200/50">
+                      <span>ASHA: <strong>{report.workerName}</strong> ({report.badgeId})</span>
+                      <span>📍 {report.location}</span>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                  No village visit records logged today yet.
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
         </div>
-      )}
 
       </main>
     </div>
