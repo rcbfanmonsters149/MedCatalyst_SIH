@@ -39,7 +39,7 @@ export const PostDispatchTransportCard: React.FC<PostDispatchTransportCardProps>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className={`text-xs font-bold ${isRendezvousActive ? 'text-emerald-900' : 'text-blue-900'}`}>
                   {isRendezvousActive 
-                    ? (language === 'mr' ? 'अर्ध्या रस्त्यात भेटण्याची प्रक्रिया सुरू आहे' : language === 'hi' ? 'आधे रास्ते में मिलन प्रक्रिया सक्रिय है' : 'Active Rendezvous Travel in Progress')
+                    ? (language === 'mr' ? 'अर्ध्या रस्त्यात भेटण्याची प्रक्रिया सुरू आहे' : language === 'hi' ? 'आधे रास्ते में मिलन प्रक्रिया सक्रिय है' : 'Active Travel to Meet Up Point in Progress')
                     : (language === 'mr' ? 'स्वतःचे वाहन उपलब्ध आहे का? (बाईक, कार, ऑटो)' : language === 'hi' ? 'क्या आपके पास अपना वाहन उपलब्ध है? (बाइक, कार, ऑटो)' : 'Have your own vehicle/transport available? (Bike, Car, Auto)')}
                 </span>
 

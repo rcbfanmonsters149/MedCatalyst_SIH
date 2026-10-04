@@ -185,7 +185,7 @@ export const RendezvousTravelModal: React.FC<RendezvousTravelModalProps> = ({
             </div>
             <div>
               <h3 className="font-extrabold text-base font-heading">
-                {language === 'mr' ? 'भेट ठिकाण निश्चित करा (रुग्णवाहिका व तुमचे वाहन)' : language === 'hi' ? 'मिलन स्थल निर्धारित करें (एम्बुलेंस एवं आपका वाहन)' : 'Set Rendezvous Meeting Point (Meet Ambulance)'}
+                {language === 'mr' ? 'भेट ठिकाण निश्चित करा (रुग्णवाहिका व तुमचे वाहन)' : language === 'hi' ? 'मिलन स्थल निर्धारित करें (एम्बुलेंस एवं आपका वाहन)' : 'Set Meet Up Point (Meet Ambulance)'}
               </h3>
               <p className="text-xs text-blue-100">
                 {language === 'mr' 
@@ -535,7 +535,7 @@ export const RendezvousTravelModal: React.FC<RendezvousTravelModalProps> = ({
               <Zap className="w-4 h-4 text-emerald-600 shrink-0" />
               <div>
                 <span className="font-bold">
-                  {locationMode === 'AUTO_OPTIMAL' ? 'Algorithm-Optimized Rendezvous' : 'Pre-Determined Roadside Meeting'}
+                  {locationMode === 'AUTO_OPTIMAL' ? 'Algorithm-Optimized Meet Up Point' : 'Pre-Determined Roadside Meeting'}
                 </span>
                 <p className="text-[11px] text-slate-600 mt-0.5">
                   Both vehicles move simultaneously towards each other, cutting emergency response time by up to 50%.
@@ -568,9 +568,9 @@ export const RendezvousTravelModal: React.FC<RendezvousTravelModalProps> = ({
             <Navigation className="w-4 h-4" />
             <span>
               {isSubmitting 
-                ? 'Configuring Rendezvous...' 
+                ? 'Configuring Meet Up Point...' 
                 : locationMode === 'AUTO_OPTIMAL'
-                ? 'Confirm & Auto-Rendezvous with Ambulance'
+                ? 'Confirm & Meet Up with Ambulance'
                 : 'Confirm & Meet at Selected Landmark'}
             </span>
           </button>

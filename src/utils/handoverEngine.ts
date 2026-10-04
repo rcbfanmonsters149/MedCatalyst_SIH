@@ -12,7 +12,7 @@ import { haversineKm, fetchRoadRoute, getPointAlongPolyline } from './routing';
 /**
  * Curated Database of Verified Rural & Highway Safe Handover Landmarks.
  * These locations feature wide roadside pull-overs, 24x7 illumination,
- * parking space, and prominent signage suitable for emergency ambulance rendezvous.
+ * parking space, and prominent signage suitable for emergency ambulance meet up point.
  */
 export const VERIFIED_SAFE_LANDMARKS: HandoverLandmark[] = [
   {

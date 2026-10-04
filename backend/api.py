@@ -233,7 +233,7 @@ def calculate_meeting_point(req: HandoverCoordinationRequest):
     v_a = max(25.0, req.ambulance_speed_kmh)
     caretaker_fraction = v_c / (v_c + v_a) # e.g. 35 / (35 + 55) = ~0.389
 
-    # Interpolated theoretical rendezvous point
+    # Interpolated theoretical meet up point
     t_lat = req.patient_lat + (req.ambulance_lat - req.patient_lat) * caretaker_fraction
     t_lng = req.patient_lng + (req.ambulance_lng - req.patient_lng) * caretaker_fraction
 

@@ -572,7 +572,7 @@ export const AmbulanceDashboard: React.FC = () => {
         )}
 
         {/* ========================================================= */}
-        {/* TAB: MIDWAY AMBULANCE HANDOVER / MEET-ME RENDEZVOUS       */}
+        {/* TAB: MIDWAY AMBULANCE HANDOVER / MEET UP POINT            */}
         {/* ========================================================= */}
         {activeTab === 'handover' && (
           <div className="space-y-5 animate-in fade-in">
@@ -658,7 +658,7 @@ export const AmbulanceDashboard: React.FC = () => {
                       <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3">
                         <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                           <span className="text-xs font-black uppercase text-emerald-800 font-mono tracking-wider">
-                            📍 DESIGNATED SAFE RENDEZVOUS SPOT
+                            📍 DESIGNATED SAFE MEET UP POINT
                           </span>
                           <span className="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono">
                             {activeHandover.landmark.safetyRating.replace('_', ' ')}
@@ -719,7 +719,7 @@ export const AmbulanceDashboard: React.FC = () => {
                         </div>
 
                         <p className="text-xs text-slate-500">
-                          Driver & Paramedic Crew: The patient is actively traveling toward the highlighted rendezvous point using local transport. Rendezvous convergence saves ~{activeHandover.timeSavedMinutes} minutes of critical response time.
+                          Driver & Paramedic Crew: The patient is actively traveling toward the highlighted meet up point using local transport. Meeting at the meet up point saves ~{activeHandover.timeSavedMinutes} minutes of critical response time.
                         </p>
                       </div>
 
@@ -730,7 +730,7 @@ export const AmbulanceDashboard: React.FC = () => {
                       <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                         <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 font-mono">
                           <MapPin className="w-4 h-4 text-emerald-600" />
-                          <span>DUAL-APPROACH RENDEZVOUS MAP</span>
+                          <span>DUAL-APPROACH MEET UP POINT MAP</span>
                         </span>
                         <span className="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full">
                           Live OSRM Geometry
@@ -757,7 +757,7 @@ export const AmbulanceDashboard: React.FC = () => {
                     </div>
                     <h3 className="font-bold text-base text-slate-900">Direct Ambulance Pickup Currently Active</h3>
                     <p className="text-xs text-slate-500 max-w-md mx-auto">
-                      The emergency is currently configured for direct pickup at the patient's home coordinates. If the caller or ASHA worker confirms local transport is available, tap below to activate Midway Rendezvous.
+                      The emergency is currently configured for direct pickup at the patient's home coordinates. If the caller or ASHA worker confirms local transport is available, tap below to activate Midway Meet Up Point.
                     </p>
                     <button
                       type="button"
@@ -777,7 +777,7 @@ export const AmbulanceDashboard: React.FC = () => {
                 </div>
                 <h3 className="font-bold text-base text-slate-900">No Active Emergency Handover</h3>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  When a citizen requests an emergency ambulance and selects "Meet Ambulance Halfway", live dual tracking and the rendezvous cockpit will appear here.
+                  When a citizen requests an emergency ambulance and selects "Meet Ambulance Halfway", live dual tracking and the meet up point cockpit will appear here.
                 </p>
               </div>
             )}

@@ -58,7 +58,7 @@ export const HandoverETAComparisonCard: React.FC<HandoverETAComparisonCardProps>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs uppercase font-extrabold tracking-wider text-emerald-800 font-mono">
-                {language === 'mr' ? 'थेट समन्वय कक्ष' : language === 'hi' ? 'लाइव समन्वय कक्ष' : 'Live Rendezvous Coordination'}
+                {language === 'mr' ? 'थेट समन्वय कक्ष' : language === 'hi' ? 'लाइव समन्वय कक्ष' : 'Live Meet Up Point Coordination'}
               </span>
               <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1 ${
                 isCompleted 
@@ -76,7 +76,7 @@ export const HandoverETAComparisonCard: React.FC<HandoverETAComparisonCardProps>
                     : isArrived
                     ? (language === 'mr' ? 'दोन्ही वाहने पोहोचली' : language === 'hi' ? 'दोनों वाहन पहुंचे' : 'Arrived at Handover Point')
                     : isApproaching
-                    ? (language === 'mr' ? 'ठिकाणाजवळ पोहोचत आहेत' : language === 'hi' ? 'बिंदु के निकट पहुंच रहे हैं' : 'Approaching Rendezvous')
+                    ? (language === 'mr' ? 'ठिकाणाजवळ पोहोचत आहेत' : language === 'hi' ? 'बिंदु के निकट पहुंच रहे हैं' : 'Approaching Meet Up Point')
                     : (language === 'mr' ? 'दोन्ही वाहने मार्गावर' : language === 'hi' ? 'दोनों वाहन मार्ग में' : 'En Route to Handover')}
                 </span>
               </span>
@@ -155,7 +155,7 @@ export const HandoverETAComparisonCard: React.FC<HandoverETAComparisonCardProps>
             ? 'सुचवलेले सुरक्षित ठिकाण. घटनास्थळी परिस्थितीनुसार रुग्णवाहिका चालक किंवा डॉक्टर अंतिम स्पॉट बदलू शकतात.' 
             : language === 'hi' 
             ? 'सुझाया गया सुरक्षित स्थान। जमीनी परिस्थितियों के अनुसार एम्बुलेंस टीम अंतिम बैठक स्थल को थोड़ा समायोजित कर सकती है।' 
-            : 'Suggested route-based rendezvous location. Final meeting point may be adjusted by emergency paramedic personnel.'}
+            : 'Suggested route-based meet up point location. Final meeting point may be adjusted by emergency paramedic personnel.'}
         </p>
       </div>
 
@@ -192,7 +192,7 @@ export const HandoverETAComparisonCard: React.FC<HandoverETAComparisonCardProps>
           </div>
         </div>
 
-        {/* Metric 2: Meeting Point Rendezvous */}
+        {/* Metric 2: Meet Up Point */}
         <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-2 border border-slate-800 shadow-md">
           <div className="flex items-center justify-between text-xs text-emerald-400 font-bold">
             <span className="flex items-center gap-1.5">
@@ -209,7 +209,7 @@ export const HandoverETAComparisonCard: React.FC<HandoverETAComparisonCardProps>
               <span className="text-3xl font-black text-emerald-400 font-mono tracking-tight">
                 ~{convergenceEta}
               </span>
-              <span className="text-xs text-slate-300 font-medium">mins rendezvous</span>
+              <span className="text-xs text-slate-300 font-medium">mins to meet up point</span>
             </div>
             <div className="text-xs text-slate-300 truncate max-w-full font-medium">
               {activeHandover.landmark.name.split(' ')[0]} {activeHandover.landmark.name.split(' ')[1]}
@@ -297,7 +297,7 @@ export const HandoverETAComparisonCard: React.FC<HandoverETAComparisonCardProps>
             </div>
             <div>
               <div className="text-[10px] uppercase font-black tracking-wider bg-white/20 px-2 py-0.5 rounded-full inline-block font-mono">
-                RENDEZVOUS CONVERGED
+                MEET UP POINT CONVERGED
               </div>
               <h4 className="font-black text-base sm:text-lg">
                 {language === 'mr' ? 'रुग्णवाहिका हस्तांतरण ठिकाणी पोहोचली आहे!' : language === 'hi' ? 'एम्बुलेंस बैठक स्थल पर पहुंच गई है!' : 'Ambulance has arrived at the meeting point.'}

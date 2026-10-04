@@ -2394,7 +2394,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setActiveHandover(prev => prev ? {
       ...prev,
       isDivergingOrBlocked: true,
-      divergenceAlertMessage: '⚠️ Caretaker vehicle took alternate detour. Dynamically recalculating rendezvous point along new trajectory...'
+      divergenceAlertMessage: '⚠️ Caretaker vehicle took alternate detour. Dynamically recalculating meet up point along new trajectory...'
     } : null);
 
     setTimeout(() => {

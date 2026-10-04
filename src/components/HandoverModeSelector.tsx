@@ -174,7 +174,7 @@ export const HandoverModeSelector: React.FC<HandoverModeSelectorProps> = ({ clas
               ? 'स्थानिक वाहनाने (बाईक, ऑटो, ट्रॅक्टर) सुरक्षित बैठक ठिकाणाकडे निघू शकता. रुग्णवाहिका समोरून येईल व वेगाने भेट होईल.'
               : language === 'hi'
               ? 'स्थानीय वाहन (बाइक, ऑटो, ट्रैक्टर) से सुरक्षित बैठक बिंदु की ओर निकलें। एम्बुलेंस सामने से आएगी और दोनों जल्दी मिलेंगे।'
-              : 'Travel toward the hospital/meeting point using local transport (bike, auto, car). The ambulance travels toward you for a coordinated rendezvous.'}
+              : 'Travel toward the hospital/meeting point using local transport (bike, auto, car). The ambulance travels toward you to meet at the meet up point.'}
           </p>
 
           <div className={`pt-2 border-t flex items-center justify-between text-xs font-mono ${
@@ -182,7 +182,7 @@ export const HandoverModeSelector: React.FC<HandoverModeSelectorProps> = ({ clas
           }`}>
             <span className="text-emerald-700 font-bold flex items-center gap-1">
               <Zap className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{language === 'mr' ? 'भेट' : language === 'hi' ? 'मिलन' : 'Rendezvous'}: ~{activeHandover ? Math.max(activeHandover.caretakerEtaMinutes, activeHandover.ambulanceEtaMinutes) : 12} mins</span>
+              <span>{language === 'mr' ? 'भेट' : language === 'hi' ? 'मिलन' : 'Meet Up Point'}: ~{activeHandover ? Math.max(activeHandover.caretakerEtaMinutes, activeHandover.ambulanceEtaMinutes) : 12} mins</span>
             </span>
             <span className="text-emerald-700 font-bold">
               ⚡ ~{activeHandover?.timeSavedMinutes || 16} mins {language === 'mr' ? 'बचत' : language === 'hi' ? 'बचत' : 'saved'}
