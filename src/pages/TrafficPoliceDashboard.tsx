@@ -9,13 +9,11 @@ import {
   Clock, 
   Building2, 
   LogOut, 
-  Radio,
-  ExternalLink
+  Radio
 } from '../components/icons';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
-import { Link } from 'react-router-dom';
 import { LeafletMap } from '../components/LeafletMap';
 import { PortalsDropdown } from '../components/PortalsDropdown';
 
@@ -53,69 +51,59 @@ export const TrafficPoliceDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans">
       
-      {/* Top Header */}
-      <header className="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 px-4 sm:px-6 py-3 shadow-xs">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+      {/* Top Header Navigation */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           
-          {/* Badge & Identity */}
+          {/* Logo & Identity */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-blue-500/20 shrink-0">
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-black tracking-tight text-slate-900 font-heading">
+                <h1 className="font-extrabold text-lg text-slate-900 font-heading tracking-tight leading-tight">
                   {tr.police.title}
                 </h1>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200 flex items-center gap-1">
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping"></span>
-                  {tr.police.activeEmergencyRoute}
+                  <span>{tr.police.activeEmergencyRoute}</span>
                 </span>
               </div>
-              <p className="text-xs text-slate-500">
-                {tr.police.liveTrackingSubtitle}
+              <p className="text-[11px] text-slate-500 hidden sm:block">
+                {policeUserSignal ? (
+                  <>
+                    {tr.police.signalPost}: <strong className="text-slate-700 font-mono font-bold">{policeUserSignal.id}</strong> • <span className="text-slate-600 font-medium">{policeUserSignal.name}</span>
+                  </>
+                ) : (
+                  tr.police.liveTrackingSubtitle
+                )}
               </p>
             </div>
           </div>
 
-          {/* Right Header: Station Post Badge, Language, Public Portal & Switch/Logout */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          {/* Controls & Switch Links (Neat, aligned, symmetrical) */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <LanguageSelector variant="light" />
 
             <PortalsDropdown currentPortal="police" />
 
-            <Link
-              to="/"
-              className="h-10 text-xs text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 px-3.5 rounded-xl transition flex items-center gap-2 border border-slate-200 shadow-xs font-semibold cursor-pointer hidden md:flex"
-              title="Open the citizen-facing public portal"
-            >
-              <ExternalLink className="w-3.5 h-3.5 text-blue-600" />
-              <span>{tr.common.publicPortal}</span>
-            </Link>
-
             {policeUserSignal && (
-              <div className="h-10 flex items-center gap-2.5 bg-white border border-slate-200 rounded-xl px-3 shadow-xs">
-                <div className="text-left">
-                  <div className="flex items-center gap-1.5 leading-none">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
-                      {tr.police.signalPost}
-                    </span>
-                  </div>
-                  <p className="text-xs font-bold text-slate-900 font-mono leading-none mt-0.5">
-                    {policeUserSignal.id} <span className="font-sans font-semibold text-slate-600">• {policeUserSignal.name}</span>
-                  </p>
-                </div>
-                <button
-                  onClick={logoutPoliceSignal}
-                  className="ml-1 px-2 py-1 bg-slate-50 hover:bg-red-50 text-slate-600 hover:text-red-600 border border-slate-200 hover:border-red-200 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-                  title="Switch Signal Post / Logout"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>{tr.police.switchPost}</span>
-                </button>
+              <div className="h-10 px-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl hidden lg:flex items-center gap-2 text-xs font-semibold shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                <span className="font-mono font-bold">{policeUserSignal.id}</span>
+                <span className="text-emerald-700 font-medium truncate max-w-[150px]">• {policeUserSignal.name}</span>
               </div>
             )}
+
+            <button
+              onClick={logoutPoliceSignal}
+              className="h-10 text-xs text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 px-3 sm:px-3.5 rounded-xl transition flex items-center gap-2 border border-rose-200 cursor-pointer font-semibold shadow-xs shrink-0"
+              title="Switch Signal Post / Logout"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>{tr.police.switchPost}</span>
+            </button>
           </div>
 
         </div>
