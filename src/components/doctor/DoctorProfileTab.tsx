@@ -241,31 +241,6 @@ export const DoctorProfileTab: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Call Availability Toggle Pill */}
-          <div className="flex flex-col sm:flex-row md:flex-col items-start md:items-end gap-2.5 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-700">
-                Call Reception Mode:
-              </span>
-              <button
-                type="button"
-                onClick={handleToggleInstantCalls}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
-                  readyForCalls ? 'bg-teal-600' : 'bg-slate-300'
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    readyForCalls ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </div>
-            <p className="text-[11px] text-slate-500 font-medium">
-              {readyForCalls ? '🟢 Free to accept incoming tele-consults' : '⏸️ Incoming tele-consults paused'}
-            </p>
-          </div>
-
         </div>
 
         {/* Section Navigation Tabs with Distinct Boundaries */}
@@ -296,31 +271,7 @@ export const DoctorProfileTab: React.FC = () => {
               <Award className="w-3.5 h-3.5 text-teal-600" />
               <span>Medical Degrees & Credentials</span>
             </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveSubSection('availability')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-                activeSubSection === 'availability'
-                  ? 'bg-white text-teal-700 shadow-xs border border-teal-200 font-black'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Clock className="w-3.5 h-3.5 text-teal-600" />
-              <span>Edit Call Availability & Timings ({availableSlots.length} slots)</span>
-            </button>
           </div>
-
-          {activeSubSection === 'ratings' && (
-            <button
-              type="button"
-              onClick={() => setShowReviewModal(true)}
-              className="px-3.5 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white rounded-xl text-xs font-extrabold shadow-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>+ Add Patient Feedback (Demo)</span>
-            </button>
-          )}
         </div>
       </div>
 

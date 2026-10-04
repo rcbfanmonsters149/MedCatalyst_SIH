@@ -212,7 +212,7 @@ export const DoctorQueueHUD: React.FC<DoctorQueueHUDProps> = ({
                   className="flex-1 py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-md"
                 >
                   <Square className="w-3.5 h-3.5 fill-current" />
-                  <span>End & Issue Rx</span>
+                  <span>End & Issue Prescription</span>
                 </button>
               </div>
             </div>
@@ -506,7 +506,7 @@ export const DoctorQueueHUD: React.FC<DoctorQueueHUDProps> = ({
                             onClick={() => onOpenPrescriptionModal(appt)}
                             className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-[11px] transition cursor-pointer"
                           >
-                            Rx
+                            Prescription
                           </button>
                         )}
                       </div>

@@ -191,7 +191,7 @@ export const PatientRecordViewPage: React.FC = () => {
               className="flex-1 sm:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
               <Plus className="w-4 h-4" />
-              <span>Issue Rx & Labs</span>
+              <span>Issue Prescriptions & Labs</span>
             </button>
 
             <button
@@ -396,7 +396,7 @@ export const PatientRecordViewPage: React.FC = () => {
                 {flt === 'ALL' 
                   ? `All Records (${user.pastRecords.length})` 
                   : flt === 'PRESCRIPTIONS' 
-                    ? 'Prescriptions (Rx)' 
+                    ? 'Prescriptions' 
                     : 'Diagnostic Lab Reports'}
               </button>
             ))}
@@ -423,7 +423,7 @@ export const PatientRecordViewPage: React.FC = () => {
                         {rec.hospitalName}
                       </span>
                       <span className="text-[11px] font-mono font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
-                        Rx ID: {rec.id.toUpperCase()}
+                        Prescription ID: {rec.id.toUpperCase()}
                       </span>
                       {rec.isBlockchainVerified && (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">

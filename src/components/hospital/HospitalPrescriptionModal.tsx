@@ -578,7 +578,7 @@ export const HospitalPrescriptionModal: React.FC<HospitalPrescriptionModalProps>
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Digital Prescriptions (Rx) + Laboratory Diagnostics linked to Patient ABHA Health ID
+                Digital Prescriptions + Laboratory Diagnostics linked to Patient ABHA Health ID
               </p>
             </div>
           </div>
@@ -973,7 +973,7 @@ export const HospitalPrescriptionModal: React.FC<HospitalPrescriptionModalProps>
                 }`}
               >
                 <Pill className="w-3.5 h-3.5 text-rose-600" />
-                <span>Prescription (Rx)</span>
+                <span>Prescriptions</span>
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
                   includePrescription ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-500'
                 }`}>
@@ -1012,7 +1012,7 @@ export const HospitalPrescriptionModal: React.FC<HospitalPrescriptionModalProps>
                   <div>
                     <div className="flex items-center gap-2">
                       <label className="font-extrabold text-slate-900 text-sm">
-                        Medications & Dosing Schedule (Rx)
+                        Medications & Dosing Schedule (Prescriptions)
                       </label>
                       <span className="text-[10px] bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-full border border-rose-200">
                         {medications.length} Prescribed
@@ -1441,10 +1441,10 @@ export const HospitalPrescriptionModal: React.FC<HospitalPrescriptionModalProps>
                     <Check className="w-4 h-4" />
                     <span>
                       {includePrescription && includeLabRecords 
-                        ? 'Issue Rx & Lab Records to ABHA' 
+                        ? 'Issue Prescriptions & Lab Records to ABHA' 
                         : includeLabRecords 
                           ? 'Issue Lab Diagnostics to ABHA' 
-                          : 'Issue Rx & Sync to ABHA'}
+                          : 'Issue Prescriptions & Sync to ABHA'}
                     </span>
                   </>
                 )}
