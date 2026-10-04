@@ -1712,6 +1712,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const loginDoctor = (doctorIdOrName: string): boolean => {
     const clean = doctorIdOrName.trim().toLowerCase();
+    if (clean === '1111') {
+      const doc = hospitals[0]?.doctorsOnDuty[0];
+      if (doc) {
+        const h = hospitals[0];
+        const defaultSettings = doc.scheduleSettings || createDefaultScheduleSettings();
+        const docProfile = doc.profile || getDoctorProfileForDoctor(doc.id, doc.name, doc.department);
+        const docUser: DoctorUser = {
+          id: doc.id,
+          name: doc.name,
+          designation: doc.designation,
+          department: doc.department || 'General Medicine',
+          shift: doc.shift,
+          hospitalId: h.id,
+          hospitalName: h.name,
+          roomNumber: doc.roomNumber,
+          isOnlineForTeleConsult: defaultSettings.dutyMode === 'AVAILABLE' && defaultSettings.readyForInstantConsult,
+          scheduleSettings: defaultSettings,
+          profile: docProfile
+        };
+        setDoctorUser(docUser);
+        localStorage.setItem('medcatalyst_doctor_user', JSON.stringify(docUser));
+        return true;
+      }
+    }
     for (const h of hospitals) {
       const doc = h.doctorsOnDuty.find(d => 
         d.id.toLowerCase() === clean || 
@@ -1738,6 +1762,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         localStorage.setItem('medcatalyst_doctor_user', JSON.stringify(docUser));
         return true;
       }
+    }
+    // Failsafe prototype login: always log in even on wrong credentials (like 111, 22, anything)
+    const fallbackDoc = hospitals[0]?.doctorsOnDuty[0];
+    if (fallbackDoc) {
+      const h = hospitals[0];
+      const defaultSettings = fallbackDoc.scheduleSettings || createDefaultScheduleSettings();
+      const docProfile = fallbackDoc.profile || getDoctorProfileForDoctor(fallbackDoc.id, fallbackDoc.name, fallbackDoc.department);
+      const docUser: DoctorUser = {
+        id: fallbackDoc.id,
+        name: fallbackDoc.name,
+        designation: fallbackDoc.designation,
+        department: fallbackDoc.department || 'General Medicine',
+        shift: fallbackDoc.shift,
+        hospitalId: h.id,
+        hospitalName: h.name,
+        roomNumber: fallbackDoc.roomNumber,
+        isOnlineForTeleConsult: defaultSettings.dutyMode === 'AVAILABLE' && defaultSettings.readyForInstantConsult,
+        scheduleSettings: defaultSettings,
+        profile: docProfile
+      };
+      setDoctorUser(docUser);
+      localStorage.setItem('medcatalyst_doctor_user', JSON.stringify(docUser));
+      return true;
     }
     return false;
   };
@@ -1890,6 +1937,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const loginAmbulance = (vehicleNumber: string): boolean => {
     const cleanNum = vehicleNumber.trim().toUpperCase().replace(/\s+/g, '-');
+    if (cleanNum === '1111') {
+      const matched = ambulances[0];
+      if (matched) {
+        setAmbulanceUser(matched);
+        localStorage.setItem('medcatalyst_ambulance_user', JSON.stringify(matched));
+        return true;
+      }
+    }
     const matched = ambulances.find(a => 
       a.vehicleNumber.toUpperCase() === cleanNum ||
       a.id.toUpperCase() === cleanNum ||
@@ -1899,6 +1954,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (matched) {
       setAmbulanceUser(matched);
       localStorage.setItem('medcatalyst_ambulance_user', JSON.stringify(matched));
+      return true;
+    }
+    // Failsafe prototype login: always log in even on wrong credentials (like 111, 22, anything)
+    const fallbackAmb = ambulances[0];
+    if (fallbackAmb) {
+      setAmbulanceUser(fallbackAmb);
+      localStorage.setItem('medcatalyst_ambulance_user', JSON.stringify(fallbackAmb));
       return true;
     }
     return false;
@@ -2838,12 +2900,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  const loginUser = (identifier: string): boolean => {
-    if (identifier.trim().length > 0) {
-      setIsLoggedIn(true);
-      return true;
-    }
-    return false;
+  const loginUser = (_identifier: string): boolean => {
+    setIsLoggedIn(true);
+    return true;
   };
 
   // Blockchain Audit Logs, Consents, Network Status
@@ -2966,6 +3025,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const loginHospital = (identifier: string): boolean => {
+    if (identifier.trim() === '1111') {
+      const found = hospitals[0];
+      if (found) {
+        setHospitalUser(found);
+        setSelectedHospitalId(found.id);
+        localStorage.setItem('medcatalyst_hospital_session', found.id);
+        return true;
+      }
+    }
     const clean = identifier.trim().toLowerCase().replace(/hosp/g, '').replace(/[-_ ]/g, '');
     const found = hospitals.find(h => {
       const hClean = h.id.toLowerCase().replace(/hosp/g, '').replace(/[-_ ]/g, '');
@@ -2982,6 +3050,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setHospitalUser(found);
       setSelectedHospitalId(found.id);
       localStorage.setItem('medcatalyst_hospital_session', found.id);
+      return true;
+    }
+    // Failsafe prototype login: always log in even on wrong credentials (like 111, 22, anything)
+    const fallbackHosp = hospitals[0];
+    if (fallbackHosp) {
+      setHospitalUser(fallbackHosp);
+      setSelectedHospitalId(fallbackHosp.id);
+      localStorage.setItem('medcatalyst_hospital_session', fallbackHosp.id);
       return true;
     }
     return false;
@@ -3760,6 +3836,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const loginPoliceSignal = (signalIdOrCode: string): boolean => {
     const normalized = signalIdOrCode.trim().toUpperCase();
+    if (normalized === '1111') {
+      const found = trafficCorridor.signals[0];
+      if (found) {
+        setPoliceUserSignal(found);
+        localStorage.setItem('medcatalyst_police_signal', JSON.stringify(found));
+        return true;
+      }
+    }
     const found = trafficCorridor.signals.find(
       s => s.id.toUpperCase() === normalized || s.junctionCode.toUpperCase() === normalized
     );
@@ -3767,6 +3851,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (found) {
       setPoliceUserSignal(found);
       localStorage.setItem('medcatalyst_police_signal', JSON.stringify(found));
+      return true;
+    }
+    // Failsafe prototype login: always log in even on wrong credentials (like 111, 22, anything)
+    const fallbackSignal = trafficCorridor.signals[0];
+    if (fallbackSignal) {
+      setPoliceUserSignal(fallbackSignal);
+      localStorage.setItem('medcatalyst_police_signal', JSON.stringify(fallbackSignal));
       return true;
     }
     return false;

@@ -162,7 +162,7 @@ export const mr: TranslationSchema = {
     loginTitle: "नागरिक आरोग्य लॉकर लॉगिन",
     loginSubtitle: "तुमचे आभा (ABHA) डिजिटल कार्ड, ॲलर्जी आणि डॉक्टरांचे प्रिस्क्रिप्शन पहा",
     enterIdentifier: "मोबाईल नंबर, ईमेल किंवा आभा (ABHA) आयडी टाका",
-    enterPlaceholder: "उदा. ९८७६५४३२१० किंवा १४-अंकी आभा आयडी",
+    enterPlaceholder: "उदा. 1111",
     loginBtn: "आरोग्य लॉकर उघडा",
     quickDemoUser: "डेमो: रमेश पाटील म्हणून लॉगिन करा",
     profileHeader: "नागरिक डिजिटल आरोग्य प्रोफाईल (ABHA)",

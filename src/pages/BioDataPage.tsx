@@ -88,14 +88,8 @@ export const BioDataPage: React.FC<BioDataPageProps> = ({ onOpenTeleConsult }) =
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginInput.trim()) {
-      setAuthError(language === 'mr' ? 'कृपया मोबाईल नंबर किंवा आभा (ABHA) आयडी प्रविष्ट करा' : language === 'hi' ? 'कृपया मोबाइल नंबर या आभा (ABHA) आईडी दर्ज करें' : 'Please enter your Mobile Number, Email, or ABHA Health ID');
-      return;
-    }
-    const success = loginUser(loginInput);
-    if (success) {
-      setAuthError('');
-    }
+    loginUser(loginInput.trim() || '1111');
+    setAuthError('');
   };
 
   const handleDownloadPrescriptionPdf = (rec: PatientRecord) => {
@@ -338,18 +332,6 @@ export const BioDataPage: React.FC<BioDataPageProps> = ({ onOpenTeleConsult }) =
             {tr.biodata.loginBtn}
           </button>
         </form>
-
-        <div className="mt-4 text-center">
-          <button
-            type="button"
-            onClick={() => {
-              loginUser('9876543210');
-            }}
-            className="text-xs font-semibold text-emerald-700 hover:underline cursor-pointer"
-          >
-            {tr.biodata.quickDemoUser}
-          </button>
-        </div>
 
         <div className="mt-6 pt-4 border-t border-slate-100 text-[11px] text-slate-400 text-center flex items-center justify-center gap-1">
           <ShieldAlert className="w-3.5 h-3.5" />

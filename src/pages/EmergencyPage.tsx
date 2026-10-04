@@ -9,7 +9,8 @@ import {
   ShieldAlert, 
   Truck, 
   ArrowRight,
-  MessageSquare
+  MessageSquare,
+  FileText
 } from '../components/icons';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -19,6 +20,7 @@ import { LiveAmbulanceTrackerCard } from '../components/LiveAmbulanceTrackerCard
 import { PostDispatchTransportCard } from '../components/PostDispatchTransportCard';
 import { HandoverETAComparisonCard } from '../components/HandoverETAComparisonCard';
 import { RaiseAmbulanceRequestModal } from '../components/RaiseAmbulanceRequestModal';
+import { HospitalTransferredDataModal } from '../components/HospitalTransferredDataModal';
 import { Link } from 'react-router-dom';
 
 interface EmergencyPageProps {
@@ -40,6 +42,7 @@ export const EmergencyPage: React.FC<EmergencyPageProps> = ({ onNavigateToAmbula
 
   const [chatMessage, setChatMessage] = useState('');
   const [isAmbulanceModalOpen, setIsAmbulanceModalOpen] = useState(false);
+  const [isTransferredDataModalOpen, setIsTransferredDataModalOpen] = useState(false);
   const [selectedHospitalId, setSelectedHospitalId] = useState<string | undefined>(undefined);
 
   const dispatch = activeDispatch;
@@ -415,25 +418,38 @@ export const EmergencyPage: React.FC<EmergencyPageProps> = ({ onNavigateToAmbula
               </div>
             </div>
 
-            <div className="pt-2 space-y-2">
-              <div className="w-full py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>{language === 'mr' ? 'पॅरामेडिक तपासणी फॉर्म जोडला गेला आहे' : language === 'hi' ? 'पैरामेडिक मूल्यांकन फॉर्म जुड़ा हुआ है' : 'In-Ambulance Paramedic Assessment Form Linked'}</span>
-              </div>
-
-              <Link
-                to="/hospital?tab=ambulance"
-                className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition border border-slate-200"
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setIsTransferredDataModalOpen(true)}
+                className="w-full py-3 px-4 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold text-xs sm:text-sm rounded-xl transition shadow-md shadow-teal-600/20 flex items-center justify-center gap-2 cursor-pointer group"
               >
-                <Truck className="w-4 h-4 text-blue-600" />
-                <span>{tr.nav.paramedicCrew}</span>
-              </Link>
+                <FileText className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform" />
+                <span>
+                  {language === 'mr' 
+                    ? 'रुग्णालयाकडे पाठवलेला सर्व डेटा सविस्तर पहा' 
+                    : language === 'hi' 
+                      ? 'अस्पताल को भेजा गया पूरा मरीज डेटा विस्तार से देखें' 
+                      : 'View All User Data Transferred to Hospital in Detail'}
+                </span>
+                <ArrowRight className="w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
+              </button>
             </div>
           </div>
 
         </div>
 
       </div>
+
+      {dispatch && (
+        <HospitalTransferredDataModal
+          isOpen={isTransferredDataModalOpen}
+          onClose={() => setIsTransferredDataModalOpen(false)}
+          dispatch={dispatch}
+          user={user}
+          receivingHospital={hospitals.find(h => h.id === dispatch.currentHospitalId) || hospitals[0]}
+        />
+      )}
 
     </div>
   );

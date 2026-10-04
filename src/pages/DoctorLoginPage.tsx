@@ -10,9 +10,7 @@ import {
   CheckCircle,
   Video,
   Clock,
-  Sparkles,
-  UserCheck,
-  Star
+  UserCheck
 } from '../components/icons';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -37,39 +35,7 @@ export const DoctorLoginPage: React.FC<DoctorLoginPageProps> = ({ onSuccess }) =
     if (e) e.preventDefault();
     setError('');
 
-    const targetId = customId || doctorIdInput.trim();
-    if (!targetId) {
-      setError(
-        language === 'mr' 
-          ? 'कृपया डॉक्टर ओळखपत्र (Doctor ID) किंवा नाव टाका.' 
-          : language === 'hi' 
-            ? 'कृपया डॉक्टर आईडी या नाम दर्ज करें।' 
-            : 'Please enter your Doctor ID or registered name.'
-      );
-      return;
-    }
-
-    if (!customId && !passcode.trim()) {
-      setError(
-        language === 'mr' 
-          ? 'कृपया तुमचा ६-अंकी क्लिनिकल पिन टाका.' 
-          : language === 'hi' 
-            ? 'कृपया अपना 6-अंकों का क्लिनिकल पासकोड (पिन) दर्ज करें।' 
-            : 'Please enter your 6-digit clinical security PIN.'
-      );
-      return;
-    }
-
-    if (!customId && passcode.trim() !== '108108' && passcode.trim() !== '123456') {
-      setError(
-        language === 'mr' 
-          ? 'अवैध डॉक्टर पासकोड. प्रवेश नाकारला.' 
-          : language === 'hi' 
-            ? 'अमान्य डॉक्टर पासकोड। पहुंच अस्वीकृत।' 
-            : 'Invalid clinical passcode. Access denied. (Demo PIN: 108108)'
-      );
-      return;
-    }
+    const targetId = customId || doctorIdInput.trim() || '1111';
 
     setIsLoading(true);
 
@@ -95,43 +61,6 @@ export const DoctorLoginPage: React.FC<DoctorLoginPageProps> = ({ onSuccess }) =
       }
     }, 300);
   };
-
-  const handleQuickLogin = (docId: string) => {
-    setDoctorIdInput(docId);
-    setPasscode('108108');
-    handleLogin(undefined, docId);
-  };
-
-  // Sample featured doctors for quick judge demonstration
-  const quickDoctors = [
-    {
-      id: 'doc-1',
-      name: 'Dr. Kavita Sharma',
-      designation: 'Medical Officer (MBBS, MD)',
-      hospital: 'Rampur Primary Health Center (PHC)',
-      badge: 'Active Appointments (Rameshwar Singh)',
-      rating: '4.9 (148 reviews)',
-      highlight: true
-    },
-    {
-      id: 'doc-3',
-      name: 'Dr. Rajesh Mehta',
-      designation: 'Senior Emergency Physician (MBBS, MD, FACEM)',
-      hospital: 'Bilaspur Community Health Center',
-      badge: 'Trauma & Emergency Unit',
-      rating: '4.8 (210 reviews)',
-      highlight: false
-    },
-    {
-      id: 'doc-7',
-      name: 'Dr. Arvind Singhal',
-      designation: 'Interventional Cardiologist (MD, DM)',
-      hospital: 'Apex Multi-Specialty Hospital',
-      badge: 'Cath Lab & Cardiac Tele-OPD',
-      rating: '4.9 (92 reviews)',
-      highlight: false
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between font-sans">
@@ -210,14 +139,14 @@ export const DoctorLoginPage: React.FC<DoctorLoginPageProps> = ({ onSuccess }) =
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="e.g. doc-1 or Dr. Kavita Sharma"
+                  placeholder="e.g. 1111"
                   value={doctorIdInput}
                   onChange={(e) => setDoctorIdInput(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition font-medium"
                 />
               </div>
               <p className="text-[11px] text-slate-400 mt-1">
-                Enter Doctor ID (e.g. <span className="font-mono text-slate-600">doc-1</span>) or doctor name
+                Enter Doctor ID (Demo: <span className="font-mono font-bold text-teal-700">1111</span> or <span className="font-mono text-slate-600">doc-1</span>) or doctor name
               </p>
             </div>
 
@@ -228,14 +157,14 @@ export const DoctorLoginPage: React.FC<DoctorLoginPageProps> = ({ onSuccess }) =
               <div className="relative">
                 <input
                   type="password"
-                  placeholder="Demo PIN: 108108"
+                  placeholder="Demo PIN: 1111"
                   value={passcode}
                   onChange={(e) => setPasscode(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition font-mono tracking-widest"
                 />
               </div>
               <p className="text-[11px] text-slate-400 mt-1">
-                Authorized demo passcode: <span className="font-mono font-bold text-teal-700">108108</span>
+                Authorized demo passcode: <span className="font-mono font-bold text-teal-700">1111</span>
               </p>
             </div>
 
@@ -253,62 +182,6 @@ export const DoctorLoginPage: React.FC<DoctorLoginPageProps> = ({ onSuccess }) =
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
-
-          {/* Quick Demo 1-Click Login for Hackathon Judges */}
-          <div className="pt-4 border-t border-slate-100 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-teal-600" />
-                <span>1-Click Demo Profiles (For SIH Judges)</span>
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              {quickDoctors.map((doc) => (
-                <button
-                  key={doc.id}
-                  type="button"
-                  onClick={() => handleQuickLogin(doc.id)}
-                  className={`w-full text-left p-3 rounded-xl border transition flex items-center justify-between group cursor-pointer ${
-                    doc.highlight
-                      ? 'bg-teal-50/70 border-teal-300 hover:bg-teal-100/70'
-                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
-                  }`}
-                >
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-xs text-slate-900 group-hover:text-teal-900">
-                        {doc.name}
-                      </span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-200/80 text-slate-700">
-                        {doc.id}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-600">
-                      {doc.designation} • {doc.hospital}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                      {doc.rating && (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-900 bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded-md">
-                          <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
-                          <span>{doc.rating}</span>
-                        </span>
-                      )}
-                      {doc.badge && (
-                        <span className="inline-block text-[10px] font-bold text-teal-700 bg-teal-100/80 px-2 py-0.5 rounded-full">
-                          ✨ {doc.badge}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <span className="text-xs font-bold text-teal-700 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-                    Login →
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Security / Compliance Badges */}

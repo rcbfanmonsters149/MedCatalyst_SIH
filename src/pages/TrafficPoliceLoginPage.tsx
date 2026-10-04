@@ -27,22 +27,7 @@ export const TrafficPoliceLoginPage: React.FC<TrafficPoliceLoginPageProps> = ({ 
     if (e) e.preventDefault();
     setError('');
 
-    const id = signalIdInput.trim().toUpperCase();
-    if (!id) {
-      setError('Please enter your assigned Signal Post ID.');
-      return;
-    }
-
-    if (!pinCode.trim()) {
-      setError('Please enter your Officer Security PIN.');
-      return;
-    }
-
-    if (pinCode.trim() !== '108108' && pinCode.trim() !== '108') {
-      setError('Invalid Signal Post ID or officer PIN. Authorization failed.');
-      return;
-    }
-
+    const id = signalIdInput.trim().toUpperCase() || '1111';
     const success = loginPoliceSignal(id);
     if (success) {
       setError('');
@@ -111,7 +96,7 @@ export const TrafficPoliceLoginPage: React.FC<TrafficPoliceLoginPageProps> = ({ 
                   type="text"
                   value={signalIdInput}
                   onChange={(e) => { setSignalIdInput(e.target.value); setError(''); }}
-                  placeholder="e.g. S35 or JUNCTION-04"
+                  placeholder="e.g. 1111"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold uppercase focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
                 />
               </div>
@@ -127,7 +112,7 @@ export const TrafficPoliceLoginPage: React.FC<TrafficPoliceLoginPageProps> = ({ 
                   type="password"
                   value={pinCode}
                   onChange={(e) => setPinCode(e.target.value)}
-                  placeholder="Enter PIN (Demo: 108)"
+                  placeholder="Demo PIN: 1111"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono font-bold focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
                 />
               </div>

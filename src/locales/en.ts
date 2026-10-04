@@ -160,7 +160,7 @@ export const en = {
     loginTitle: "Citizen Health Locker Login",
     loginSubtitle: "Access your ABHA Digital Health Card, Allergies & Prescriptions",
     enterIdentifier: "Enter Mobile Number, Email, or ABHA Health ID",
-    enterPlaceholder: "e.g. 9876543210 or 14-digit ABHA ID",
+    enterPlaceholder: "e.g. 1111",
     loginBtn: "Access Health Locker",
     quickDemoUser: "Quick Demo: Login as Ramesh Patil",
     profileHeader: "Citizen Digital Health Profile (ABHA)",

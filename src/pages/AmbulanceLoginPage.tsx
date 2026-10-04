@@ -18,7 +18,7 @@ interface AmbulanceLoginPageProps {
 }
 
 export const AmbulanceLoginPage: React.FC<AmbulanceLoginPageProps> = ({ onSuccess }) => {
-  const { loginAmbulance, ambulances } = useApp();
+  const { loginAmbulance } = useApp();
   const { tr, language } = useLanguage();
   const [vehicleNumberInput, setVehicleNumberInput] = useState('');
   const [passcode, setPasscode] = useState('');
@@ -28,22 +28,7 @@ export const AmbulanceLoginPage: React.FC<AmbulanceLoginPageProps> = ({ onSucces
     if (e) e.preventDefault();
     setError('');
 
-    const num = vehicleNumberInput.trim();
-    if (!num) {
-      setError(language === 'mr' ? 'कृपया नोंदणीकृत रुग्णवाहिका क्रमांक टाका.' : language === 'hi' ? 'कृपया पंजीकृत एम्बुलेंस संख्या दर्ज करें।' : 'Please enter your ambulance vehicle registration number.');
-      return;
-    }
-
-    if (!passcode.trim()) {
-      setError(language === 'mr' ? 'कृपया तुमचा ६-अंकी पिन टाका.' : language === 'hi' ? 'कृपया अपना 6-अंकों का पासकोड (पिन) दर्ज करें।' : 'Please enter your 6-digit crew passcode (PIN).');
-      return;
-    }
-
-    if (passcode.trim() !== '108108') {
-      setError(language === 'mr' ? 'अवैध वाहन क्रमांक किंवा पासकोड. प्रवेश नाकारला.' : language === 'hi' ? 'अमान्य वाहन संख्या या पासकोड। पहुंच अस्वीकृत।' : 'Invalid vehicle registration number or crew passcode. Access denied.');
-      return;
-    }
-
+    const num = vehicleNumberInput.trim() || '1111';
     const success = loginAmbulance(num);
     if (success) {
       setError('');
@@ -123,7 +108,7 @@ export const AmbulanceLoginPage: React.FC<AmbulanceLoginPageProps> = ({ onSucces
               type="text"
               value={vehicleNumberInput}
               onChange={(e) => setVehicleNumberInput(e.target.value)}
-              placeholder="e.g. MH-12-AMB-1081"
+              placeholder="e.g. 1111"
               className="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-sm font-mono text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
             />
           </div>
@@ -131,13 +116,13 @@ export const AmbulanceLoginPage: React.FC<AmbulanceLoginPageProps> = ({ onSucces
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
               <KeyRound className="w-3.5 h-3.5 text-slate-400" />
-              <span>{language === 'mr' ? 'चालक पिन (108108)' : language === 'hi' ? 'चालक पिन (108108)' : 'Crew Passcode PIN (108108)'}</span>
+              <span>{language === 'mr' ? 'चालक पिन (1111)' : language === 'hi' ? 'चालक पिन (1111)' : 'Crew Passcode PIN (1111)'}</span>
             </label>
             <input
               type="password"
               value={passcode}
               onChange={(e) => setPasscode(e.target.value)}
-              placeholder="108108"
+              placeholder="1111"
               className="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-sm font-mono text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
             />
           </div>
@@ -156,31 +141,6 @@ export const AmbulanceLoginPage: React.FC<AmbulanceLoginPageProps> = ({ onSucces
             <span>{tr.ambulance.loginBtn}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
-
-          {/* Quick Demo Ambulance Selector */}
-          {ambulances && ambulances.length > 0 && (
-            <div className="pt-3 border-t border-slate-100">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
-                {tr.ambulance.selectVehicle}:
-              </span>
-              <div className="space-y-1.5">
-                {ambulances.slice(0, 3).map((a) => (
-                  <button
-                    key={a.id}
-                    type="button"
-                    onClick={() => {
-                      setVehicleNumberInput(a.vehicleNumber);
-                      setPasscode('108108');
-                    }}
-                    className="w-full text-left p-2 rounded-lg bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-xs text-slate-700 transition flex items-center justify-between cursor-pointer"
-                  >
-                    <span className="font-mono font-bold text-slate-900">{a.vehicleNumber}</span>
-                    <span className="text-slate-500 text-[11px]">{a.driverName}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           <div className="pt-2 flex items-center justify-center gap-1.5 text-xs text-slate-400 text-center">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />

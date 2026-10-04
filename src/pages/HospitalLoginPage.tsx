@@ -27,22 +27,7 @@ export const HospitalLoginPage: React.FC<HospitalLoginPageProps> = ({ onSuccess 
     if (e) e.preventDefault();
     setError('');
 
-    const id = hospitalIdInput.trim();
-    if (!id) {
-      setError(language === 'mr' ? 'कृपया वैध रुग्णालय आयडी प्रविष्ट करा.' : language === 'hi' ? 'कृपया वैध अस्पताल आईडी दर्ज करें।' : 'Please enter a valid Hospital ID or ABDM Registry Code.');
-      return;
-    }
-
-    if (!passcode.trim()) {
-      setError(language === 'mr' ? 'कृपया तुमचा ६-अंकी कर्मचारी पिन टाका.' : language === 'hi' ? 'कृपया अपना 6-अंकों का स्टाफ पिन दर्ज करें।' : 'Please enter your 6-digit hospital staff PIN / security key.');
-      return;
-    }
-
-    if (passcode.trim() !== '108108') {
-      setError(language === 'mr' ? 'अवैध रुग्णालय आयडी किंवा सुरक्षा पिन. प्रवेश नाकारला.' : language === 'hi' ? 'अमान्य अस्पताल आईडी या सुरक्षा पिन। पहुंच अस्वीकृत।' : 'Invalid hospital facility ID or staff security PIN. Access denied.');
-      return;
-    }
-
+    const id = hospitalIdInput.trim() || '1111';
     const success = loginHospital(id);
     if (success) {
       setError('');
@@ -112,7 +97,7 @@ export const HospitalLoginPage: React.FC<HospitalLoginPageProps> = ({ onSuccess 
                   type="text"
                   value={hospitalIdInput}
                   onChange={(e) => setHospitalIdInput(e.target.value)}
-                  placeholder="hosp-rampur-phc or 108108"
+                  placeholder="e.g. 1111"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                 />
               </div>
@@ -120,7 +105,7 @@ export const HospitalLoginPage: React.FC<HospitalLoginPageProps> = ({ onSuccess 
 
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                {language === 'mr' ? 'कर्मचारी सुरक्षा पिन (108108)' : language === 'hi' ? 'स्टाफ सुरक्षा पिन (108108)' : 'Staff PIN / Security Key (108108)'}
+                {language === 'mr' ? 'कर्मचारी सुरक्षा पिन (1111)' : language === 'hi' ? 'स्टाफ सुरक्षा पिन (1111)' : 'Staff PIN / Security Key (1111)'}
               </label>
               <div className="relative">
                 <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
@@ -128,7 +113,7 @@ export const HospitalLoginPage: React.FC<HospitalLoginPageProps> = ({ onSuccess 
                   type="password"
                   value={passcode}
                   onChange={(e) => setPasscode(e.target.value)}
-                  placeholder="108108"
+                  placeholder="1111"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                 />
               </div>

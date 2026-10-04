@@ -741,7 +741,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       const ambMarker = L.marker([amb.currentLat, amb.currentLng], { icon: ambIcon });
       ambMarker.bindPopup(`
         <div style="font-family: sans-serif; font-size: 12px;">
-          <strong style="font-size: 13px; color: #0f172a;">${amb.vehicleNumber}</strong> (${amb.type})<br>
+          <strong style="font-size: 13px; color: #0f172a;">108 Ambulance</strong> (${amb.type})<br>
           Status: <strong style="color: ${isAvailable ? '#0284c7' : '#f59e0b'};">${amb.status}</strong><br>
           Driver: ${amb.driverName} (${amb.driverPhone})<br>
           Base: ${amb.hospitalName}
@@ -1108,7 +1108,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
           box-shadow: 0 2px 4px rgba(0,0,0,0.4);
           letter-spacing: 0.5px;
         ">
-          ${liveAmbulance.vehicleNumber} • ${liveAmbulance.speedKmH} km/h
+          108 Ambulance
         </div>
       </div>
     `;
@@ -1129,11 +1129,11 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       <div style="font-family: 'Inter', system-ui, sans-serif; min-width: 230px; padding: 2px;">
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 5px;">
           <strong style="color: #b91c1c; font-size: 13px;">🚨 Live Moving Ambulance</strong>
-          <span style="background: #fee2e2; color: #991b1b; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 4px;">${liveAmbulance.vehicleNumber}</span>
+          <span style="background: #fee2e2; color: #991b1b; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 4px;">108 Emergency</span>
         </div>
         <div style="font-size: 11px; color: #334155; margin-bottom: 6px; line-height: 1.4;">
           Driver: <b>${liveAmbulance.driverName}</b> (${liveAmbulance.driverPhone})<br>
-          Current Speed: <b>${liveAmbulance.speedKmH} km/h</b> • Status: <b style="color: #ea580c;">${isApproaching ? 'EN ROUTE TO PATIENT' : 'TRANSPORTING TO APEX'}</b>
+          Status: <b style="color: #ea580c;">${isApproaching ? 'EN ROUTE TO PATIENT' : 'TRANSPORTING TO HOSPITAL'}</b>
         </div>
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px; font-size: 11px; display: flex; flex-direction: column; gap: 3px;">
           <div>📍 <b>Pickup Distance:</b> <span style="color: #ea580c; font-weight: 800;">${liveAmbulance.distanceToPatientKm} km</span> (~${liveAmbulance.etaToPatientMinutes} mins)</div>
@@ -1297,7 +1297,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
               border: 1px solid #f59e0b;
               box-shadow: 0 2px 4px rgba(0,0,0,0.4);
             ">
-              YOU • ${caretakerTelemetry.speedKmH} km/h
+              YOU
             </div>
           </div>
         `;
@@ -1310,7 +1310,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
               <span style="background: #fef3c7; color: #92400e; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 4px;">${caretakerTelemetry.vehicleType}</span>
             </div>
             <div style="font-size: 11px; color: #334155; margin-bottom: 6px;">
-              Current Speed: <b>${caretakerTelemetry.speedKmH} km/h</b> • GPS Accuracy: ±${caretakerTelemetry.accuracyMeters}m
+              Status: <b>EN ROUTE</b> • GPS Accuracy: ±${caretakerTelemetry.accuracyMeters}m
             </div>
             <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 6px; font-size: 11px;">
               <div>🤝 <b>To Meeting Point:</b> <span style="color: #b45309; font-weight: 800;">${caretakerTelemetry.distanceToMeetingKm} km</span> (~${caretakerTelemetry.etaToMeetingMinutes} mins)</div>
