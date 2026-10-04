@@ -1137,6 +1137,7 @@ export const DoctorDashboard: React.FC = () => {
             setPrescriptionModalSection('all');
           }}
           hospital={doctorHospital}
+          initialDoctorId={doctorUser?.id}
           initialAbhaId={prescriptionAppt?.patientAbhaId || ''}
           initialPatientName={prescriptionAppt?.patientName || ''}
           defaultActiveSection={prescriptionModalSection}

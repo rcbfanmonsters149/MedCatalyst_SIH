@@ -157,9 +157,9 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
 
   // Stable memoized anchor position for distance & route calculations
   const effectiveUserCoords = useMemo(() => {
+    if (pickupLocation) return { lat: pickupLocation.lat, lng: pickupLocation.lng };
     if (userLocation) return { lat: userLocation.lat, lng: userLocation.lng };
     if (contextUserLocation) return { lat: contextUserLocation.lat, lng: contextUserLocation.lng };
-    if (pickupLocation) return { lat: pickupLocation.lat, lng: pickupLocation.lng };
     return { lat: 28.7080, lng: 77.0980 };
   }, [userLocation?.lat, userLocation?.lng, contextUserLocation?.lat, contextUserLocation?.lng, pickupLocation?.lat, pickupLocation?.lng]);
 

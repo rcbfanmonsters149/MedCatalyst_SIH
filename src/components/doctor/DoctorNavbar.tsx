@@ -21,6 +21,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { LanguageSelector } from '../LanguageSelector';
+import { PortalsDropdown } from '../PortalsDropdown';
 import { DoctorDutyMode } from '../../types';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -48,17 +49,11 @@ export const DoctorNavbar: React.FC<DoctorNavbarProps> = ({
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const statusDropdownRef = useRef<HTMLDivElement>(null);
 
-  const [isPortalsOpen, setIsPortalsOpen] = useState(false);
-  const portalsRef = useRef<HTMLDivElement>(null);
-
   // Close dropdowns on outside click
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
       if (statusDropdownRef.current && !statusDropdownRef.current.contains(e.target as Node)) {
         setIsStatusDropdownOpen(false);
-      }
-      if (portalsRef.current && !portalsRef.current.contains(e.target as Node)) {
-        setIsPortalsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleOutsideClick);
@@ -93,44 +88,6 @@ export const DoctorNavbar: React.FC<DoctorNavbarProps> = ({
       dutyMode: nextCalls ? 'AVAILABLE' : dutyMode
     });
   };
-
-  const portalsList = [
-    {
-      to: '/',
-      title: 'Citizen Portal',
-      desc: 'Emergency SOS & Tele-Consults',
-      icon: Heart,
-      color: 'text-rose-600 bg-rose-50 border-rose-200'
-    },
-    {
-      to: '/hospital',
-      title: 'Hospital Admin Portal',
-      desc: 'Bed & ICU Availability, ER Triage Desk',
-      icon: Building2,
-      color: 'text-blue-600 bg-blue-50 border-blue-200'
-    },
-    {
-      to: '/ambulance',
-      title: 'Ambulance & Paramedics',
-      desc: 'Cockpit HUD, GPS Routing & Live Vitals',
-      icon: Truck,
-      color: 'text-emerald-600 bg-emerald-50 border-emerald-200'
-    },
-    {
-      to: '/police',
-      title: 'Traffic Police Portal',
-      desc: 'Green Corridor Signal Post Control',
-      icon: ShieldCheck,
-      color: 'text-amber-600 bg-amber-50 border-amber-200'
-    },
-    {
-      to: '/workers',
-      title: 'ASHA Healthcare Workers',
-      desc: 'Village Field Reports & Maternal Care',
-      icon: Heart,
-      color: 'text-purple-600 bg-purple-50 border-purple-200'
-    }
-  ];
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
@@ -298,69 +255,7 @@ export const DoctorNavbar: React.FC<DoctorNavbarProps> = ({
             </div>
 
             {/* 5. Operational Portals Dropdown Button */}
-            <div className="relative" ref={portalsRef}>
-              <button
-                type="button"
-                onClick={() => setIsPortalsOpen(prev => !prev)}
-                className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer ${
-                  isPortalsOpen
-                    ? 'bg-slate-100 border-slate-300 text-slate-900'
-                    : 'bg-white hover:bg-slate-50 border-slate-200/90 text-slate-700 hover:border-slate-300'
-                }`}
-                title="Switch to another portal"
-                aria-expanded={isPortalsOpen}
-              >
-                <Building2 className="w-3.5 h-3.5 text-slate-600" />
-                <span className="hidden sm:inline">Portals</span>
-                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isPortalsOpen ? 'rotate-180 text-teal-600' : ''}`} />
-              </button>
-
-              {/* Portals Floating Card Menu */}
-              {isPortalsOpen && (
-                <div className="absolute right-0 mt-2 w-72 sm:w-80 rounded-2xl shadow-xl border border-slate-200/90 bg-white/95 backdrop-blur-md p-2 z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        Operational Portals
-                      </p>
-                      <p className="text-xs font-semibold text-slate-700">
-                        Switch system view
-                      </p>
-                    </div>
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-teal-100 text-teal-800 border border-teal-200">
-                      Active: Doctor Desk
-                    </span>
-                  </div>
-
-                  <div className="p-1 space-y-1">
-                    {portalsList.map((portal) => {
-                      const Icon = portal.icon;
-                      return (
-                        <Link
-                          key={portal.to}
-                          to={portal.to}
-                          onClick={() => setIsPortalsOpen(false)}
-                          className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition-all group border border-transparent hover:border-slate-200/60"
-                        >
-                          <div className={`w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 ${portal.color}`}>
-                            <Icon className="w-4 h-4" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-slate-800 group-hover:text-teal-700 transition-colors">
-                              {portal.title}
-                            </p>
-                            <p className="text-[10px] text-slate-500 truncate">
-                              {portal.desc}
-                            </p>
-                          </div>
-                          <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-teal-600 group-hover:translate-x-0.5 transition-all shrink-0" />
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
+            <PortalsDropdown currentPortal="doctor" />
 
             {/* 6. Language Selector Dropdown */}
             <div className="p-0.5 rounded-xl border border-slate-200/90 bg-white hover:border-slate-300 transition shadow-2xs">

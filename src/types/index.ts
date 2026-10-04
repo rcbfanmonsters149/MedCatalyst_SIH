@@ -155,6 +155,7 @@ export interface PatientRecord {
   date: string;
   hospitalName: string;
   hospitalId?: string;
+  doctorId?: string;
   doctorName: string;
   doctorSpecialty?: string;
   diagnosis: string;

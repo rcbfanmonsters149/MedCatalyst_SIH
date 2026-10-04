@@ -18,6 +18,7 @@ import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LanguageSelector } from './LanguageSelector';
+import { PortalsDropdown } from './PortalsDropdown';
 
 export type ActiveTab = 'citizen' | 'teleconsult' | 'emergency' | 'profile';
 
@@ -165,64 +166,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
             <LanguageSelector variant="light" />
 
             {/* 2. Operational Portals Dropdown Button (h-10) */}
-            <div className="relative" ref={portalsRef}>
-              <button
-                type="button"
-                onClick={() => setIsPortalsOpen(prev => !prev)}
-                className={`h-10 px-3.5 rounded-xl border text-xs font-semibold flex items-center gap-2 transition-all shadow-xs cursor-pointer ${
-                  isPortalsOpen
-                    ? 'bg-slate-100 border-slate-300 text-slate-900'
-                    : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300'
-                }`}
-                title={tr.nav.portalsDesc}
-                aria-expanded={isPortalsOpen}
-              >
-                <Building2 className="w-4 h-4 text-slate-600" />
-                <span className="hidden sm:inline font-semibold">{tr.nav.portals}</span>
-                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isPortalsOpen ? 'rotate-180 text-emerald-600' : ''}`} />
-              </button>
-
-              {/* Portals Floating Card Menu */}
-              {isPortalsOpen && (
-                <div className="absolute right-0 mt-2 w-80 rounded-2xl shadow-xl border border-slate-200/90 bg-white/95 backdrop-blur-md p-2 z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="px-3 py-2 border-b border-slate-100">
-                    <p className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">
-                      {tr.nav.portals}
-                    </p>
-                    <p className="text-[10px] text-slate-500">
-                      {tr.nav.portalsDesc}
-                    </p>
-                  </div>
-
-                  <div className="p-1 space-y-1">
-                    {portalsList.map((portal) => {
-                      const Icon = portal.icon;
-                      return (
-                        <Link
-                          key={portal.to}
-                          to={portal.to}
-                          onClick={() => setIsPortalsOpen(false)}
-                          className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition-all group border border-transparent hover:border-slate-200/60"
-                        >
-                          <div className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${portal.color}`}>
-                            <Icon className="w-4 h-4" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">
-                              {portal.title}
-                            </p>
-                            <p className="text-[10px] text-slate-500 truncate">
-                              {portal.desc}
-                            </p>
-                          </div>
-                          <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all shrink-0" />
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
+            <PortalsDropdown currentPortal="citizen" />
 
             {/* 3. Citizen Profile / ABHA Button (h-10) */}
             <button 

@@ -118,7 +118,7 @@ interface AppContextType {
 
   // Emergency Dispatch Engine
   activeDispatch: EmergencyDispatch | null;
-  createEmergencyDispatch: (issueText: string, voiceTranscript?: string, urgency?: 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL') => void;
+  createEmergencyDispatch: (issueText: string, voiceTranscript?: string, urgency?: 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL', targetHospitalId?: string) => void;
   acceptDispatchByHospital: (hospitalId: string) => void;
   declineOrTimeoutDispatch: (hospitalId: string, reason: string) => void;
   cancelDispatch: () => void;
@@ -2925,6 +2925,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: record.id,
       date: record.date,
       hospitalName: record.hospitalName,
+      doctorId: record.doctorId,
       doctorName: record.doctorName,
       diagnosis: record.diagnosis,
       medications: record.medications,
@@ -2954,6 +2955,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: recordId,
       date: record.date,
       hospitalName: record.hospitalName,
+      doctorId: record.doctorId,
       doctorName: record.doctorName,
       diagnosis: record.diagnosis,
       medications: record.medications,
@@ -3158,7 +3160,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setAmbulances(prev => prev.map(a => a.id === ambulanceId ? { ...a, status } : a));
   };
 
-  const createEmergencyDispatch = (issueText: string, voiceTranscript?: string, urgency: 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL' = 'CRITICAL') => {
+  const createEmergencyDispatch = (issueText: string, voiceTranscript?: string, urgency: 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL' = 'CRITICAL', targetHospitalId?: string) => {
     const pickupLat = userLocation?.lat ?? 28.7080;
     const pickupLng = userLocation?.lng ?? 77.0980;
 
@@ -3192,7 +3194,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (e) {}
 
     // 2. Nearest hospital contacted in parallel for emergency bed reservation
-    const nearestHosp = hospitals[0];
+    const nearestHosp = targetHospitalId 
+      ? (hospitals.find(h => h.id === targetHospitalId) || hospitals[0]) 
+      : hospitals[0];
 
     const newDispatch: EmergencyDispatch = {
       id: `disp-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,

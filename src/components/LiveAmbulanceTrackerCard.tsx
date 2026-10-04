@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
-import { Phone, Zap, ChevronUp, ChevronDown, Activity, Navigation, Clock } from './icons';
+import { Phone, Zap, ChevronUp, ChevronDown, Activity, Navigation, Clock, MapPin, Truck } from './icons';
 
 interface LiveAmbulanceTrackerCardProps {
   className?: string;
 }
 
 export const LiveAmbulanceTrackerCard: React.FC<LiveAmbulanceTrackerCardProps> = ({ className = '' }) => {
-  const { liveAmbulance, cancelDispatch } = useApp();
+  const { liveAmbulance, cancelDispatch, activeDispatch, hospitals } = useApp();
   const { tr, language } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -19,6 +19,23 @@ export const LiveAmbulanceTrackerCard: React.FC<LiveAmbulanceTrackerCardProps> =
   const hospDistLabel = language === 'mr' ? 'रुग्णालय अंतर' : language === 'hi' ? 'अस्पताल दूरी' : 'Distance to Hospital';
   const remainingLabel = language === 'mr' ? 'किमी शिल्लक' : language === 'hi' ? 'किमी शेष' : 'km remaining';
   const callDriverLabel = language === 'mr' ? 'चालकाला कॉल करा' : language === 'hi' ? 'चालक को कॉल करें' : 'Call Driver';
+
+  // Target hospital and expected arrival time
+  const targetHospital = hospitals.find(h => h.id === activeDispatch?.currentHospitalId);
+  const targetHospitalName = targetHospital?.name || 'Apex Trauma Center & Emergency Department';
+  const etaMinutesToHosp = liveAmbulance.etaToHospitalMinutes || 12;
+  const formattedArrivalTime = new Date(Date.now() + etaMinutesToHosp * 60000).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  const patientPickupAddress = activeDispatch?.pickupAddress || (language === 'mr' ? 'नागरिक थेट स्थान' : language === 'hi' ? 'नागरिक लाइव स्थान' : 'User Live Location');
+  const patientPickupLat = liveAmbulance.pickupLat || activeDispatch?.pickupLat || 28.7080;
+  const patientPickupLng = liveAmbulance.pickupLng || activeDispatch?.pickupLng || 77.0980;
+
+  const ambLocationLabel = liveAmbulance.phase === 'EN_ROUTE_TO_PATIENT' 
+    ? (language === 'mr' ? 'पिकअप स्थानाकडे मार्गक्रमण' : language === 'hi' ? 'पिकअप स्थान की ओर अग्रसर' : 'Approaching User Pickup Point')
+    : (language === 'mr' ? 'रुग्णालयाकडे ग्रीन कॉरिडोअर' : language === 'hi' ? 'अस्पताल की ओर ग्रीन कॉरिडोर' : 'Transit Corridor to Hospital');
 
   return (
     <div className={`bg-white text-slate-800 rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5 transition-all ${className}`}>
@@ -60,6 +77,78 @@ export const LiveAmbulanceTrackerCard: React.FC<LiveAmbulanceTrackerCardProps> =
 
       {!isCollapsed ? (
         <div className="space-y-4 pt-3">
+          {/* PRIMARY TRI-CARD TELEMETRY: Ambulance Location, User Location, Expected Hospital Arrival */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {/* 1. Ambulance Live Location */}
+            <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200/90 text-blue-950 flex flex-col justify-between space-y-1.5 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold text-xs flex items-center gap-1.5 text-blue-900">
+                  <Truck className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>Ambulance Location</span>
+                </span>
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                  {tr.common.live}
+                </span>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-900 font-mono">
+                  {liveAmbulance.lat.toFixed(4)}° N, {liveAmbulance.lng.toFixed(4)}° E
+                </p>
+                <p className="text-[11px] text-blue-700 font-medium truncate mt-0.5">
+                  {ambLocationLabel}
+                </p>
+              </div>
+            </div>
+
+            {/* 2. User / Patient Location */}
+            <div className="p-3.5 rounded-xl bg-rose-50/70 border border-rose-200/90 text-rose-950 flex flex-col justify-between space-y-1.5 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold text-xs flex items-center gap-1.5 text-rose-900">
+                  <MapPin className="w-4 h-4 text-rose-600 shrink-0" />
+                  <span>User Location</span>
+                </span>
+                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                  Pickup Point
+                </span>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-900 truncate">
+                  {patientPickupAddress}
+                </p>
+                <p className="text-[11px] text-rose-700 font-mono font-medium mt-0.5">
+                  {patientPickupLat.toFixed(4)}° N, {patientPickupLng.toFixed(4)}° E
+                </p>
+              </div>
+            </div>
+
+            {/* 3. Expected Time by Which They Will Reach the Hospital */}
+            <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200/90 text-emerald-950 flex flex-col justify-between space-y-1.5 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold text-xs flex items-center gap-1.5 text-emerald-900">
+                  <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Expected Hospital Arrival</span>
+                </span>
+                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  ETA Inbound
+                </span>
+              </div>
+              <div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-sm sm:text-base font-black text-emerald-900 font-mono">
+                    {formattedArrivalTime}
+                  </span>
+                  <span className="text-xs font-bold text-emerald-700">
+                    (~{etaMinutesToHosp} {tr.common.unitMin})
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 font-medium truncate mt-0.5">
+                  Destination: <span className="font-semibold text-slate-900">{targetHospitalName}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* 2 Distance & ETA Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Distance to Patient Pickup */}
@@ -106,7 +195,7 @@ export const LiveAmbulanceTrackerCard: React.FC<LiveAmbulanceTrackerCardProps> =
                 <span className="text-xs font-medium text-slate-500">{remainingLabel}</span>
               </div>
               <span className="text-[11px] text-slate-500 block">
-                {language === 'mr' ? 'एपेक्स ट्रॉमा सेंटर व आपत्कालीन विभाग' : language === 'hi' ? 'एपेक्स ट्रॉमा सेंटर एवं आपातकालीन विभाग' : 'Apex Trauma Center & Emergency Department'}
+                {targetHospitalName}
               </span>
             </div>
           </div>
@@ -173,12 +262,14 @@ export const LiveAmbulanceTrackerCard: React.FC<LiveAmbulanceTrackerCardProps> =
         /* Collapsed Compact View */
         <div className="pt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-slate-600 font-medium">
-              {pickupLabel}: <b className="text-slate-900 font-mono font-bold">{liveAmbulance.distanceToPatientKm} km</b> (~{liveAmbulance.etaToPatientMinutes}m)
+            <span className="text-blue-800 font-semibold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+              🚑 {liveAmbulance.lat.toFixed(4)}°N, {liveAmbulance.lng.toFixed(4)}°E
             </span>
-            <span className="text-slate-300">•</span>
-            <span className="text-slate-600 font-medium">
-              {hospDistLabel}: <b className="text-slate-900 font-mono font-bold">{liveAmbulance.distancePatientToHospitalKm} km</b> (~{liveAmbulance.etaToHospitalMinutes}m)
+            <span className="text-rose-800 font-semibold bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200 truncate max-w-[200px]" title={patientPickupAddress}>
+              📍 {patientPickupAddress}
+            </span>
+            <span className="text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 font-mono">
+              ⏱ Reach: {formattedArrivalTime} (~{etaMinutesToHosp}m)
             </span>
           </div>
 

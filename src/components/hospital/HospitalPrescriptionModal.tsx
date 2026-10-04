@@ -146,6 +146,7 @@ interface HospitalPrescriptionModalProps {
   initialAbhaId?: string;
   initialPatientName?: string;
   defaultActiveSection?: 'all' | 'prescription' | 'labs';
+  initialDoctorId?: string;
 }
 
 export type PrescriptionInputMode = 'AI_SCAN' | 'MANUAL';
@@ -157,9 +158,10 @@ export const HospitalPrescriptionModal: React.FC<HospitalPrescriptionModalProps>
   onNotify,
   initialAbhaId,
   initialPatientName,
-  defaultActiveSection
+  defaultActiveSection,
+  initialDoctorId
 }) => {
-  const { user, addPatientPrescription } = useApp();
+  const { user, addPatientPrescription, doctorUser } = useApp();
   const { tr, language } = useLanguage();
 
   // Mode Selection
@@ -172,11 +174,15 @@ export const HospitalPrescriptionModal: React.FC<HospitalPrescriptionModalProps>
   const [patientDemographics, setPatientDemographics] = useState('38 Yrs • Male • Blood: O+ • Known Allergy: Penicillin (Mild)');
 
   // Doctor Details
+  const defaultDoc = doctorUser || hospital.doctorsOnDuty[0];
+  const [doctorId, setDoctorId] = useState(
+    initialDoctorId || defaultDoc?.id || 'doc-1'
+  );
   const [doctorName, setDoctorName] = useState(
-    hospital.doctorsOnDuty[0]?.name || 'Dr. S. K. Sharma, MD'
+    defaultDoc?.name || 'Dr. S. K. Sharma, MD'
   );
   const [doctorSpecialty, setDoctorSpecialty] = useState(
-    hospital.doctorsOnDuty[0]?.designation || 'Internal Medicine / General Physician'
+    defaultDoc?.designation || (defaultDoc as any)?.department || 'Internal Medicine / General Physician'
   );
   const [diagnosis, setDiagnosis] = useState('');
   const [vitalsSummary, setVitalsSummary] = useState('');
@@ -227,6 +233,14 @@ export const HospitalPrescriptionModal: React.FC<HospitalPrescriptionModalProps>
   useEffect(() => {
     if (initialAbhaId) setAbhaIdInput(initialAbhaId);
     if (initialPatientName) setPatientName(initialPatientName);
+    if (initialDoctorId) {
+      setDoctorId(initialDoctorId);
+      const match = hospital.doctorsOnDuty.find(d => d.id === initialDoctorId);
+      if (match) {
+        setDoctorName(match.name);
+        setDoctorSpecialty(match.designation);
+      }
+    }
     if (defaultActiveSection === 'labs') {
       setIncludeLabRecords(true);
       setIncludePrescription(false);
@@ -234,7 +248,7 @@ export const HospitalPrescriptionModal: React.FC<HospitalPrescriptionModalProps>
       setIncludePrescription(true);
       setIncludeLabRecords(false);
     }
-  }, [initialAbhaId, initialPatientName, defaultActiveSection]);
+  }, [initialAbhaId, initialPatientName, defaultActiveSection, initialDoctorId]);
 
   if (!isOpen) return null;
 
@@ -533,6 +547,7 @@ export const HospitalPrescriptionModal: React.FC<HospitalPrescriptionModalProps>
         date: todayDate,
         hospitalName: hospital.name,
         hospitalId: hospital.id,
+        doctorId: doctorId.trim() || 'doc-1',
         doctorName,
         doctorSpecialty,
         diagnosis: diagnosis.trim(),
@@ -565,20 +580,20 @@ export const HospitalPrescriptionModal: React.FC<HospitalPrescriptionModalProps>
         {/* Header */}
         <div className="bg-slate-900 text-white p-4 sm:p-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md">
-              <FileText className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+              <Upload className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="font-extrabold text-base sm:text-lg font-heading">
-                  Clinical Prescription & Lab Records Station
+                  Upload Prescriptions & Clinical Records
                 </h2>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
                   ABDM & Polygon Amoy
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Digital Prescriptions + Laboratory Diagnostics linked to Patient ABHA Health ID
+                Upload & Scan Prescriptions & Diagnostic Lab Orders linked to Patient ABHA ID
               </p>
             </div>
           </div>
@@ -889,35 +904,101 @@ export const HospitalPrescriptionModal: React.FC<HospitalPrescriptionModalProps>
           )}
 
           {/* STEP 3: Doctor & Hospital Metadata */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             
             {/* Hospital Metadata */}
-            <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-1">
+            <div className="md:col-span-5 p-3.5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
               <span className="text-[10px] uppercase font-bold text-slate-500">Issuing Facility:</span>
               <h4 className="font-bold text-slate-900 text-sm">{hospital.name}</h4>
               <p className="text-[11px] text-slate-500">{hospital.address} • {hospital.type}</p>
+              <div className="pt-1">
+                <span className="text-[10px] font-mono bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200 font-bold">
+                  Facility ID: {hospital.id}
+                </span>
+              </div>
             </div>
 
-            {/* Doctor Info */}
-            <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
-              <label className="block font-bold text-slate-700 text-xs">Attending Physician:</label>
-              <select
-                value={doctorName}
-                onChange={(e) => {
-                  setDoctorName(e.target.value);
-                  const match = hospital.doctorsOnDuty.find(d => d.name === e.target.value);
-                  if (match) setDoctorSpecialty(match.designation);
-                }}
-                className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-blue-500"
-              >
-                {hospital.doctorsOnDuty.map(d => (
-                  <option key={d.id} value={d.name}>
-                    {d.name} ({d.designation})
-                  </option>
-                ))}
-                <option value="Dr. S. K. Sharma, MD">Dr. S. K. Sharma, MD (Internal Medicine)</option>
-                <option value="Dr. Resident Medical Officer">Dr. Resident Medical Officer</option>
-              </select>
+            {/* Doctor Info & Doctor ID */}
+            <div className="md:col-span-7 p-3.5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block font-bold text-slate-700 text-xs">
+                    Doctor ID (Issued By):
+                  </label>
+                  <span className="text-[10px] text-indigo-600 font-bold">
+                    Demo: 1111 or doc-1
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    required
+                    value={doctorId}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setDoctorId(val);
+                      const clean = val.trim().toLowerCase();
+                      const match = hospital.doctorsOnDuty.find(d => 
+                        d.id.toLowerCase() === clean || 
+                        d.name.toLowerCase().includes(clean)
+                      );
+                      if (match) {
+                        setDoctorName(match.name);
+                        setDoctorSpecialty(match.designation);
+                      }
+                    }}
+                    placeholder="Enter Doctor ID who issued prescription (e.g. 1111 or doc-1)"
+                    className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-xl font-mono text-xs font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 shadow-2xs"
+                  />
+                  <select
+                    value={hospital.doctorsOnDuty.some(d => d.id === doctorId) ? doctorId : ''}
+                    onChange={(e) => {
+                      const selectedId = e.target.value;
+                      if (selectedId) {
+                        setDoctorId(selectedId);
+                        const doc = hospital.doctorsOnDuty.find(d => d.id === selectedId);
+                        if (doc) {
+                          setDoctorName(doc.name);
+                          setDoctorSpecialty(doc.designation);
+                        }
+                      }
+                    }}
+                    className="w-40 px-2 py-1.5 bg-white border border-slate-300 rounded-xl text-[11px] font-bold text-slate-700 cursor-pointer shadow-2xs"
+                    title="Select doctor on duty"
+                  >
+                    <option value="">Select Doctor...</option>
+                    {hospital.doctorsOnDuty.map(d => (
+                      <option key={d.id} value={d.id}>
+                        {d.id} ({d.name})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1">Prescribing Doctor Name:</label>
+                  <input
+                    type="text"
+                    required
+                    value={doctorName}
+                    onChange={(e) => setDoctorName(e.target.value)}
+                    placeholder="Doctor Name"
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 shadow-2xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1">Department / Specialty:</label>
+                  <input
+                    type="text"
+                    value={doctorSpecialty}
+                    onChange={(e) => setDoctorSpecialty(e.target.value)}
+                    placeholder="Specialty / Department"
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-700 focus:ring-2 focus:ring-indigo-500 shadow-2xs"
+                  />
+                </div>
+              </div>
             </div>
 
           </div>
@@ -1441,10 +1522,10 @@ export const HospitalPrescriptionModal: React.FC<HospitalPrescriptionModalProps>
                     <Check className="w-4 h-4" />
                     <span>
                       {includePrescription && includeLabRecords 
-                        ? 'Issue Prescriptions & Lab Records to ABHA' 
+                        ? 'Upload & Mint Records to ABHA' 
                         : includeLabRecords 
-                          ? 'Issue Lab Diagnostics to ABHA' 
-                          : 'Issue Prescriptions & Sync to ABHA'}
+                          ? 'Upload Lab Diagnostics to ABHA' 
+                          : 'Upload & Mint Prescription to ABHA'}
                     </span>
                   </>
                 )}

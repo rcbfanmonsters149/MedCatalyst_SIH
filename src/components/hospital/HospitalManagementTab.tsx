@@ -20,7 +20,8 @@ import {
   Disc,
   FileText,
   QrCode,
-  FlaskConical
+  FlaskConical,
+  Upload
 } from '../icons';
 import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -157,10 +158,11 @@ export const HospitalManagementTab: React.FC<HospitalManagementTabProps> = ({ ho
                 setModalDefaultSection('all');
                 setShowPrescriptionModal(true);
               }}
-              className="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+              className="px-4 py-2.5 bg-white hover:bg-indigo-50/80 text-indigo-700 border border-indigo-200/90 hover:border-indigo-300 font-bold text-xs rounded-xl shadow-2xs transition flex items-center gap-2 cursor-pointer active:scale-95 group"
+              title="Upload & Scan Prescriptions & Diagnostic Lab Orders"
             >
-              <FileText className="w-4 h-4" />
-              <span>Issue Rx & Records (ABHA)</span>
+              <Upload className="w-4 h-4 text-indigo-600 group-hover:scale-110 transition-transform shrink-0" />
+              <span>Upload Prescriptions</span>
             </button>
 
             <button

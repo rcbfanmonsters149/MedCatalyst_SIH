@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Building2, 
   Bed, 
@@ -8,17 +8,21 @@ import {
   Stethoscope,
   Radio,
   MapPin,
-  Truck
+  Truck,
+  ChevronDown,
+  ArrowRight,
+  ShieldCheck,
+  Heart
 } from '../components/icons';
 import { useApp } from '../context/AppContext';
 import { Link, useLocation } from 'react-router-dom';
 import { HospitalManagementTab } from '../components/hospital/HospitalManagementTab';
 import { HospitalEmergencyTab } from '../components/hospital/HospitalEmergencyTab';
-import { HospitalAmbulancePortalTab } from '../components/hospital/HospitalAmbulancePortalTab';
 import { useLanguage } from '../context/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
+import { PortalsDropdown } from '../components/PortalsDropdown';
 
-export type HospitalSubTab = 'management' | 'emergency' | 'ambulance';
+export type HospitalSubTab = 'management' | 'emergency';
 
 export const HospitalDashboard: React.FC = () => {
   const { 
@@ -31,7 +35,7 @@ export const HospitalDashboard: React.FC = () => {
 
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const validTabs: HospitalSubTab[] = ['management', 'emergency', 'ambulance'];
+  const validTabs: HospitalSubTab[] = ['management', 'emergency'];
   const initialTab = validTabs.includes(searchParams.get('tab') as HospitalSubTab) 
     ? (searchParams.get('tab') as HospitalSubTab) 
     : 'management';
@@ -54,36 +58,40 @@ export const HospitalDashboard: React.FC = () => {
     <div className="min-h-screen bg-white text-slate-800 pb-16 font-sans">
       
       {/* Top Operations Navigation */}
-      <header className="sticky top-0 z-40 bg-slate-900 text-white border-b border-slate-800 shadow-md">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md text-slate-800 border-b border-slate-200/90 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
               <Building2 className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg text-white font-heading">
-                  Med<span className="text-blue-400">Catalyst</span> {tr.nav.hospitalPortal}
+                <span className="font-extrabold text-lg text-slate-900 font-heading">
+                  Med<span className="text-blue-600">Catalyst</span> {tr.nav.hospitalPortal}
                 </span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
                   ID: {hospital.id.toUpperCase()}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
+              <p className="text-[11px] text-slate-500 hidden sm:block font-medium">
                 {tr.hospital.title}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <LanguageSelector variant="dark" />
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <LanguageSelector variant="light" />
+
+            {/* Operational Portals Dropdown Button */}
+            <PortalsDropdown currentPortal="hospital" />
+
             <Link
               to="/"
-              className="h-10 text-xs font-semibold text-slate-200 hover:text-white bg-slate-800 hover:bg-slate-700 px-3.5 rounded-xl transition flex items-center gap-2 border border-slate-700 cursor-pointer shadow-xs"
+              className="h-10 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 px-3.5 rounded-xl transition flex items-center gap-2 border border-slate-200 hover:border-slate-300 cursor-pointer shadow-xs"
               title="Open the citizen-facing public portal"
             >
-              <ExternalLink className="w-4 h-4 text-emerald-400" />
+              <ExternalLink className="w-4 h-4 text-emerald-600" />
               <span className="hidden sm:inline">{language === 'mr' ? 'नागरिक पोर्टल पहा' : language === 'hi' ? 'नागरिक पोर्टल देखें' : 'View Public Citizen Portal'}</span>
             </Link>
           </div>
@@ -181,19 +189,6 @@ export const HospitalDashboard: React.FC = () => {
             )}
           </button>
 
-          {/* Tab 3: Ambulance Operations & Form Upload Desk */}
-          <button
-            onClick={() => setActiveSubTab('ambulance')}
-            className={`flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer ${
-              activeSubTab === 'ambulance'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-            }`}
-          >
-            <Truck className="w-4 h-4" />
-            <span>{tr.hospital.ambulanceFleetTab}</span>
-          </button>
-
         </div>
 
         {/* RENDER THE ACTIVE SUB-PAGE */}
@@ -204,11 +199,7 @@ export const HospitalDashboard: React.FC = () => {
           <HospitalEmergencyTab 
             hospital={hospital} 
             onNotify={triggerNotify} 
-            onSwitchToAmbulancePortal={() => setActiveSubTab('ambulance')}
           />
-        )}
-        {activeSubTab === 'ambulance' && (
-          <HospitalAmbulancePortalTab hospital={hospital} onNotify={triggerNotify} />
         )}
 
       </div>

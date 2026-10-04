@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   AlertOctagon, 
   Check, 
@@ -27,8 +27,11 @@ import {
 import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Hospital } from '../../types';
+import { Link } from 'react-router-dom';
 import { EmergencyTrackerCard } from '../EmergencyTrackerCard';
 import { LeafletMap } from '../LeafletMap';
+import { LiveAmbulanceTrackerCard } from '../LiveAmbulanceTrackerCard';
+import { HospitalEmergencyPatientRecordsModal } from './HospitalEmergencyPatientRecordsModal';
 import { evaluateAmbulanceAssessment, getSymptomConfig } from '../../utils/mlTriage';
 
 interface HospitalEmergencyTabProps {
@@ -50,18 +53,35 @@ export const HospitalEmergencyTab: React.FC<HospitalEmergencyTabProps> = ({
     ambulanceAssessment,
     sendDispatchMessage,
     updateDispatchStep,
-    hospitals
+    hospitals,
+    liveAmbulance,
+    user,
+    createEmergencyDispatch
   } = useApp();
   const { tr, language } = useLanguage();
 
   const [chatInput, setChatInput] = useState('');
+  const [isPatientRecordsModalOpen, setIsPatientRecordsModalOpen] = useState(false);
+
+  // Auto-initialize inbound emergency dispatch toward this hospital if none active
+  // ensures the moving ambulance, live patient route corridor, and tracking HUD are immediately visible
+  useEffect(() => {
+    if (!activeDispatch) {
+      createEmergencyDispatch(
+        'Severe acute crushing chest pain radiating to left jaw & arm, diaphoresis (Acute Coronary Syndrome)',
+        undefined,
+        'CRITICAL',
+        hospital.id
+      );
+    }
+  }, [activeDispatch, createEmergencyDispatch, hospital.id]);
 
   const assessment = activeDispatch?.ambulanceAssessment || ambulanceAssessment;
   const triagePrediction = evaluateAmbulanceAssessment(assessment);
   const isRerouted = activeDispatch?.status === 'REROUTED';
   const rerouteAlert = activeDispatch?.rerouteAlert;
 
-  const isTargetOfActiveDispatch = activeDispatch?.currentHospitalId === hospital.id;
+  const isTargetOfActiveDispatch = !!activeDispatch;
   const assignedAmbulance = ambulances.find(a => a.id === 'amb-01') || ambulances[0];
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -75,6 +95,18 @@ export const HospitalEmergencyTab: React.FC<HospitalEmergencyTabProps> = ({
   const pickupLocation = activeDispatch 
     ? { lat: activeDispatch.pickupLat, lng: activeDispatch.pickupLng, label: activeDispatch.pickupAddress }
     : { lat: 28.7080, lng: 77.0980, label: 'Near Village Rampur Chowk' };
+
+  const ambLat = liveAmbulance?.lat ?? assignedAmbulance.currentLat;
+  const ambLng = liveAmbulance?.lng ?? assignedAmbulance.currentLng;
+  const ambLocationLabel = liveAmbulance?.phase === 'TRANSPORTING_TO_HOSPITAL'
+    ? (language === 'hi' ? 'अस्पताल कॉरिडोर की ओर अग्रसर' : language === 'mr' ? 'रुग्णालय कॉरिडोअरकडे जात आहे' : 'In Transit via Green Corridor')
+    : (language === 'hi' ? 'मरीज पिकअप की ओर अग्रसर' : language === 'mr' ? 'रुग्ण पिकअपकडे जात आहे' : 'En Route to Patient Pickup');
+
+  const etaMinutesToHospital = liveAmbulance?.etaToHospitalMinutes 
+    ?? (liveAmbulance?.etaToPatientMinutes ? liveAmbulance.etaToPatientMinutes + assignedAmbulance.etaMinutes : assignedAmbulance.etaMinutes);
+   
+  const arrivalTime = new Date(Date.now() + etaMinutesToHospital * 60000);
+  const formattedArrivalTime = arrivalTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   return (
     <div className="space-y-6">
@@ -149,37 +181,48 @@ export const HospitalEmergencyTab: React.FC<HospitalEmergencyTabProps> = ({
             </div>
           </div>
 
-          {/* Decision Buttons */}
-          {activeDispatch.status === 'PENDING_HOSPITAL_ACCEPT' && (
-            <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  declineOrTimeoutDispatch(hospital.id, 'Critical Trauma OT occupied with emergency procedure');
-                  onNotify(language === 'hi' ? 'प्रेषण अस्वीकार कर दिया गया। अगले निकटतम अस्पताल को भेजा जा रहा है।' : (language === 'mr' ? 'प्रेषण नाकारले. पुढील जवळच्या रुग्णालयाकडे वळवले जात आहे.' : 'Dispatch declined. Automated failover initiated to next nearest facility.'));
-                }}
-                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5 cursor-pointer"
-              >
-                <X className="w-4 h-4 text-slate-500" />
-                <span>{tr.hospital.declineFailover}</span>
-              </button>
+          {/* Patient Records & Decision Buttons Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-red-200">
+            <button
+              type="button"
+              onClick={() => setIsPatientRecordsModalOpen(true)}
+              className="px-4 py-2.5 bg-white hover:bg-teal-50 text-teal-800 border-2 border-teal-600 font-extrabold text-xs rounded-xl shadow-xs transition flex items-center gap-2 cursor-pointer active:scale-95"
+            >
+              <FileText className="w-4 h-4 text-teal-600" />
+              <span>{language === 'mr' ? 'संपूर्ण रुग्ण वैद्यकीय नोंदी पहा (ABHA)' : language === 'hi' ? 'संपूर्ण मरीज मेडिकल रिकॉर्ड देखें (ABHA)' : 'View Full Patient Medical Records (ABHA Dossier)'}</span>
+            </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  acceptDispatchByHospital(hospital.id);
-                  onNotify(language === 'hi' ? 'प्रेषण स्वीकृत! एम्बुलेंस मरीज के लिए रवाना।' : (language === 'mr' ? 'प्रेषण स्वीकारले! रुग्णवाहिका रुग्णाकडे रवाना.' : 'Dispatch accepted! Ambulance en route to patient.'));
-                }}
-                className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer active:scale-95"
-              >
-                <Check className="w-4 h-4" />
-                <span>{tr.hospital.acceptAndDeploy}</span>
-              </button>
-            </div>
-          )}
+            {activeDispatch.status === 'PENDING_HOSPITAL_ACCEPT' && (
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    declineOrTimeoutDispatch(hospital.id, 'Critical Trauma OT occupied with emergency procedure');
+                    onNotify(language === 'hi' ? 'प्रेषण अस्वीकार कर दिया गया। अगले निकटतम अस्पताल को भेजा जा रहा है।' : (language === 'mr' ? 'प्रेषण नाकारले. पुढील जवळच्या रुग्णालयाकडे वळवले जात आहे.' : 'Dispatch declined. Automated failover initiated to next nearest facility.'));
+                  }}
+                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <X className="w-4 h-4 text-slate-500" />
+                  <span>{tr.hospital.declineFailover}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    acceptDispatchByHospital(hospital.id);
+                    onNotify(language === 'hi' ? 'प्रेषण स्वीकृत! एम्बुलेंस मरीज के लिए रवाना।' : (language === 'mr' ? 'प्रेषण स्वीकारले! रुग्णवाहिका रुग्णाकडे रवाना.' : 'Dispatch accepted! Ambulance en route to patient.'));
+                  }}
+                  className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>{tr.hospital.acceptAndDeploy}</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex items-center justify-between">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
               <Radio className="w-5 h-5 animate-pulse" />
@@ -191,9 +234,31 @@ export const HospitalEmergencyTab: React.FC<HospitalEmergencyTabProps> = ({
               </p>
             </div>
           </div>
-          <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
-            {tr.hospital.readyForSos}
-          </span>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => setIsPatientRecordsModalOpen(true)}
+              className="px-3.5 py-2 bg-white hover:bg-teal-50 text-teal-800 border border-teal-300 font-bold text-xs rounded-xl shadow-2xs transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <FileText className="w-4 h-4 text-teal-600" />
+              <span>View Patient Records</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                createEmergencyDispatch(
+                  'Severe acute crushing chest pain radiating to left jaw & arm, diaphoresis (Acute Coronary Syndrome)',
+                  undefined,
+                  'CRITICAL',
+                  hospital.id
+                );
+                onNotify('Inbound emergency dispatch simulation started!');
+              }}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>🚨 Start Inbound SOS Simulation</span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -242,30 +307,21 @@ export const HospitalEmergencyTab: React.FC<HospitalEmergencyTabProps> = ({
                 : `Real-time visual map tracking the patient's exact pickup coordinates, ambulance live GPS location, and route corridor to ${hospital.name}.`)}
           </p>
 
-          <div className="rounded-xl overflow-hidden border border-slate-200">
+          <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
             <LeafletMap
               hospitals={hospitals}
               ambulances={ambulances}
               selectedHospitalId={hospital.id}
               pickupLocation={pickupLocation}
-              height="380px"
+              height="500px"
+              showRouteLine={true}
+              showLiveAmbulance={true}
+              showRideHUD={true}
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-2 text-[11px] pt-1">
-            <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-900">
-              <span className="font-bold">📍 {tr.hospital.patientLocation}:</span>
-              <p className="text-[10px] text-rose-700 truncate">{pickupLocation.label}</p>
-            </div>
-            <div className="p-2.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-900">
-              <span className="font-bold">🚑 {tr.hospital.ambulancePosition}:</span>
-              <p className="text-[10px] text-blue-700 truncate">{assignedAmbulance.vehicleNumber} ({tr.common.live})</p>
-            </div>
-            <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900">
-              <span className="font-bold">🏥 {tr.hospital.facilityDestination}:</span>
-              <p className="text-[10px] text-emerald-700 truncate">{hospital.name}</p>
-            </div>
-          </div>
+          {/* DEDICATED SEPARATE LIVE AMBULANCE TELEMETRY & ROUTE TRACKER CARD */}
+          <LiveAmbulanceTrackerCard />
         </div>
 
         {/* In-Transit Paramedic Assessment Report & Radio Communication (5 Cols) */}
@@ -529,18 +585,15 @@ export const HospitalEmergencyTab: React.FC<HospitalEmergencyTabProps> = ({
                 </div>
               )}
 
-              {onSwitchToAmbulancePortal && (
                 <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={onSwitchToAmbulancePortal}
-                    className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  <Link
+                    to="/ambulance"
+                    className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                   >
                     <Truck className="w-3.5 h-3.5 text-slate-600" />
                     <span>{tr.hospital.openAmbulancePortal}</span>
-                  </button>
+                  </Link>
                 </div>
-              )}
             </div>
 
           </div>
@@ -597,6 +650,15 @@ export const HospitalEmergencyTab: React.FC<HospitalEmergencyTabProps> = ({
         </div>
 
       </div>
+
+      {/* Full Patient Health Records & Clinical Dossier Modal */}
+      <HospitalEmergencyPatientRecordsModal
+        isOpen={isPatientRecordsModalOpen}
+        onClose={() => setIsPatientRecordsModalOpen(false)}
+        user={user}
+        dispatch={activeDispatch}
+        hospital={hospital}
+      />
 
     </div>
   );

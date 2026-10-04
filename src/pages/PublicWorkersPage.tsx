@@ -24,6 +24,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { LeafletMap } from '../components/LeafletMap';
 import { Link } from 'react-router-dom';
+import { PortalsDropdown } from '../components/PortalsDropdown';
 
 export const PublicWorkersPage: React.FC = () => {
   const { tr } = useLanguage();
@@ -142,9 +143,12 @@ export const PublicWorkersPage: React.FC = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             <LanguageSelector variant="light" />
 
+            <PortalsDropdown currentPortal="workers" />
+
             <Link 
               to="/" 
               className="h-10 inline-flex items-center gap-2 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 px-3.5 rounded-xl border border-slate-200 shadow-xs transition cursor-pointer"
+              title="Open the citizen-facing public portal"
             >
               <ArrowLeft className="w-4 h-4 text-slate-500" />
               <span>{tr.common.back} • {tr.nav.citizenPortal}</span>

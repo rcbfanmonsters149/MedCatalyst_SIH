@@ -28,6 +28,7 @@ import {
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
+import { PortalsDropdown } from '../components/PortalsDropdown';
 import { PatientRecord, PrescriptionMedication } from '../types';
 import { recordAuditEvent } from '../services/blockchainService';
 import { HospitalPrescriptionModal } from '../components/hospital/HospitalPrescriptionModal';
@@ -118,6 +119,7 @@ export const PatientRecordViewPage: React.FC = () => {
 
           <div className="flex items-center gap-2 sm:gap-3">
             <LanguageSelector variant="dark" />
+            <PortalsDropdown currentPortal="doctor" variant="dark" />
             <Link
               to="/hospital"
               className="px-3.5 py-2 text-xs font-bold text-blue-300 hover:text-white bg-blue-950/80 hover:bg-blue-900/80 border border-blue-800/80 rounded-xl transition flex items-center gap-1.5"

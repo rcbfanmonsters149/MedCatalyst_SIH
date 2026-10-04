@@ -31,6 +31,7 @@ import { Link } from 'react-router-dom';
 import { HospitalAmbulancePortalTab } from '../components/hospital/HospitalAmbulancePortalTab';
 import { EmergencyTrackerCard } from '../components/EmergencyTrackerCard';
 import { LeafletMap } from '../components/LeafletMap';
+import { PortalsDropdown } from '../components/PortalsDropdown';
 
 export type AmbulanceSubTab = 'assessment' | 'dispatch' | 'handover' | 'radio';
 
@@ -141,9 +142,12 @@ export const AmbulanceDashboard: React.FC = () => {
 
             <LanguageSelector variant="light" />
 
+            <PortalsDropdown currentPortal="ambulance" />
+
             <Link
               to="/"
               className="h-10 text-xs text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 px-3.5 rounded-xl transition flex items-center gap-2 border border-slate-200 shadow-xs font-semibold cursor-pointer hidden md:flex"
+              title="Open the citizen-facing public portal"
             >
               <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
               <span>{tr.common.publicPortal}</span>
