@@ -579,8 +579,8 @@ const INITIAL_HOSPITALS: Hospital[] = [
     distanceKm: 3.8,
     etaMinutes: 8,
     phone: '+91 11 2894 1001',
-    lat: 28.7041,
-    lng: 77.1025,
+    lat: 28.7290,
+    lng: 77.1160,
     is24x7Emergency: false,
     hasAmbulanceService: true,
     openingHours: '08:00 AM - 08:00 PM (Emergency Staff On-Call)',
@@ -615,8 +615,8 @@ const INITIAL_HOSPITALS: Hospital[] = [
     distanceKm: 9.5,
     etaMinutes: 16,
     phone: '+91 11 2894 2002',
-    lat: 28.7350,
-    lng: 77.0850,
+    lat: 28.7420,
+    lng: 77.0680,
     is24x7Emergency: true,
     hasAmbulanceService: true,
     openingHours: '24 Hours Open (24x7 Emergency)',
@@ -969,9 +969,9 @@ const INITIAL_AMBULANCES: Ambulance[] = [
     driverName: 'Jagdish Kumar',
     driverPhone: '+91 98123 00001',
     status: 'AVAILABLE',
-    currentLat: 28.7050,
-    currentLng: 77.1010,
-    etaMinutes: 7
+    currentLat: 28.7260,
+    currentLng: 77.0810,
+    etaMinutes: 6
   },
   {
     id: 'amb-02',
@@ -982,8 +982,8 @@ const INITIAL_AMBULANCES: Ambulance[] = [
     driverName: 'Suresh Pal',
     driverPhone: '+91 98123 00002',
     status: 'AVAILABLE',
-    currentLat: 28.7340,
-    currentLng: 77.0860,
+    currentLat: 28.7420,
+    currentLng: 77.0680,
     etaMinutes: 14
   },
   {
@@ -1111,28 +1111,28 @@ function createLocalizedHospitals(baseLat: number, baseLng: number, areaName: st
   const t4 = template[4] || INITIAL_HOSPITALS[4];
   const t5 = template[5] || INITIAL_HOSPITALS[5];
 
-  const h1Lat = Math.round((baseLat + 0.0090) * 10000) / 10000;
-  const h1Lng = Math.round((baseLng + 0.0075) * 10000) / 10000;
+  const h1Lat = Math.round((baseLat + 0.0210) * 10000) / 10000;
+  const h1Lng = Math.round((baseLng + 0.0170) * 10000) / 10000;
   const h1Dist = calculateHaversineKm(baseLat, baseLng, h1Lat, h1Lng);
 
-  const h2Lat = Math.round((baseLat - 0.0160) * 10000) / 10000;
-  const h2Lng = Math.round((baseLng + 0.0150) * 10000) / 10000;
+  const h2Lat = Math.round((baseLat - 0.0280) * 10000) / 10000;
+  const h2Lng = Math.round((baseLng + 0.0240) * 10000) / 10000;
   const h2Dist = calculateHaversineKm(baseLat, baseLng, h2Lat, h2Lng);
 
-  const h3Lat = Math.round((baseLat - 0.0110) * 10000) / 10000;
-  const h3Lng = Math.round((baseLng - 0.0130) * 10000) / 10000;
+  const h3Lat = Math.round((baseLat - 0.0230) * 10000) / 10000;
+  const h3Lng = Math.round((baseLng - 0.0210) * 10000) / 10000;
   const h3Dist = calculateHaversineKm(baseLat, baseLng, h3Lat, h3Lng);
 
-  const h4Lat = Math.round((baseLat + 0.0190) * 10000) / 10000;
-  const h4Lng = Math.round((baseLng - 0.0180) * 10000) / 10000;
+  const h4Lat = Math.round((baseLat + 0.0350) * 10000) / 10000;
+  const h4Lng = Math.round((baseLng - 0.0280) * 10000) / 10000;
   const h4Dist = calculateHaversineKm(baseLat, baseLng, h4Lat, h4Lng);
 
-  const h5Lat = Math.round((baseLat + 0.0340) * 10000) / 10000;
-  const h5Lng = Math.round((baseLng + 0.0260) * 10000) / 10000;
+  const h5Lat = Math.round((baseLat + 0.0520) * 10000) / 10000;
+  const h5Lng = Math.round((baseLng + 0.0380) * 10000) / 10000;
   const h5Dist = calculateHaversineKm(baseLat, baseLng, h5Lat, h5Lng);
 
-  const h6Lat = Math.round((baseLat - 0.0450) * 10000) / 10000;
-  const h6Lng = Math.round((baseLng + 0.0380) * 10000) / 10000;
+  const h6Lat = Math.round((baseLat - 0.0680) * 10000) / 10000;
+  const h6Lng = Math.round((baseLng + 0.0550) * 10000) / 10000;
   const h6Dist = calculateHaversineKm(baseLat, baseLng, h6Lat, h6Lng);
 
   return [
@@ -1208,23 +1208,23 @@ function createLocalizedAmbulances(baseLat: number, baseLng: number, areaName: s
     {
       ...a0,
       hospitalName: `${areaName} Primary Health Center`,
-      currentLat: Math.round((baseLat + 0.0040) * 10000) / 10000,
-      currentLng: Math.round((baseLng + 0.0030) * 10000) / 10000,
-      etaMinutes: 2,
+      currentLat: Math.round((baseLat + 0.0180) * 10000) / 10000,
+      currentLng: Math.round((baseLng - 0.0140) * 10000) / 10000,
+      etaMinutes: 6,
     },
     {
       ...a1,
       hospitalName: `${areaName} Community Health Center`,
-      currentLat: Math.round((baseLat - 0.0095) * 10000) / 10000,
-      currentLng: Math.round((baseLng + 0.0075) * 10000) / 10000,
-      etaMinutes: 4,
+      currentLat: Math.round((baseLat - 0.0240) * 10000) / 10000,
+      currentLng: Math.round((baseLng + 0.0180) * 10000) / 10000,
+      etaMinutes: 10,
     },
     {
       ...a2,
       hospitalName: `Apex MedCatalyst Multi-Specialty (${areaName})`,
-      currentLat: Math.round((baseLat + 0.0165) * 10000) / 10000,
-      currentLng: Math.round((baseLng - 0.0125) * 10000) / 10000,
-      etaMinutes: 7,
+      currentLat: Math.round((baseLat + 0.0320) * 10000) / 10000,
+      currentLng: Math.round((baseLng + 0.0280) * 10000) / 10000,
+      etaMinutes: 14,
     }
   ];
 }
@@ -1235,6 +1235,14 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [hospitals, setHospitals] = useState<Hospital[]>(() => {
+    if (typeof window !== 'undefined') {
+      const geoVer = localStorage.getItem('medcatalyst_geo_v2');
+      if (!geoVer) {
+        localStorage.removeItem('medcatalyst_hospitals');
+        localStorage.removeItem('medcatalyst_ambulances');
+        localStorage.setItem('medcatalyst_geo_v2', 'true');
+      }
+    }
     const saved = localStorage.getItem('medcatalyst_hospitals') || localStorage.getItem('sanjeevani_hospitals');
     if (saved) {
       try {

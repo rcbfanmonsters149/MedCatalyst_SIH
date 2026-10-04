@@ -234,7 +234,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       try {
         map.flyToBounds(L.latLngBounds(corridorRoute), {
           padding: [50, 50],
-          maxZoom: 15,
+          maxZoom: 14,
           duration: 1.2
         });
       } catch (e) {}
@@ -267,9 +267,9 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
 
     try {
       map.flyToBounds(L.latLngBounds(points), {
-        padding: [60, 60],
-        maxZoom: 15,
-        duration: 1.2
+        padding: [65, 65],
+        maxZoom: 13.8,
+        duration: 1.0
       });
     } catch (e) {}
   }, [corridorRoute, showReroutePath, rerouteDestination, targetHospital, effectiveUserCoords, liveAmbulance, roadRouteData, activeHandover, caretakerTelemetry, showLiveAmbulance]);
@@ -465,38 +465,37 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
     const userLng = effectiveUserCoords.lng;
 
     const userPinHtml = `
-      <div style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
-        <span style="position: absolute; width: 36px; height: 36px; border-radius: 50%; background-color: rgba(59, 130, 246, 0.4); animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
+      <div style="position: relative; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
+        <span style="position: absolute; width: 30px; height: 30px; border-radius: 50%; background-color: rgba(59, 130, 246, 0.35); animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
         <div style="
-          width: 22px; 
-          height: 22px; 
+          width: 18px; 
+          height: 18px; 
           border-radius: 50%; 
           background: linear-gradient(135deg, #2563eb, #1d4ed8); 
-          border: 3px solid #ffffff; 
-          box-shadow: 0 0 12px rgba(37, 99, 235, 0.8);
+          border: 2px solid #ffffff; 
+          box-shadow: 0 0 8px rgba(37, 99, 235, 0.7);
           display: flex; 
           align-items: center; 
           justify-content: center;
           color: white;
-          font-size: 11px;
-          font-weight: bold;
           z-index: 10;
         ">
         </div>
         <div style="
           position: absolute;
-          bottom: -18px;
+          bottom: -14px;
           background: #1e293b;
           color: #ffffff;
-          font-size: 9px;
-          font-weight: 800;
-          padding: 1px 6px;
-          border-radius: 6px;
+          font-size: 7.5px;
+          font-weight: 700;
+          padding: 0.5px 4px;
+          border-radius: 4px;
           white-space: nowrap;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-          letter-spacing: 0.5px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+          letter-spacing: 0.2px;
+          line-height: 1.1;
         ">
-          YOU
+          ${caretakerTelemetry ? 'Patient' : 'You'}
         </div>
       </div>
     `;
@@ -504,8 +503,8 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
     const userIcon = L.divIcon({
       html: userPinHtml,
       className: 'user-gps-marker',
-      iconSize: [36, 36],
-      iconAnchor: [18, 18]
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
     });
 
     const userMarker = L.marker([userLat, userLng], { icon: userIcon, zIndexOffset: 1000 });
@@ -586,15 +585,15 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
           <div style="
             background: linear-gradient(135deg, ${primaryColor}, ${primaryColor}dd);
             color: white;
-            width: ${isHighlighted ? '38px' : '32px'};
-            height: ${isHighlighted ? '38px' : '32px'};
-            border-radius: 12px;
+            width: ${isHighlighted ? '30px' : '26px'};
+            height: ${isHighlighted ? '30px' : '26px'};
+            border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: ${isHighlighted ? '18px' : '15px'};
-            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-            border: 2.5px solid white;
+            font-size: ${isHighlighted ? '14px' : '12px'};
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border: 2px solid white;
             transition: all 0.2s;
             z-index: 5;
           ">
@@ -604,17 +603,18 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
           <!-- Highlight Pill Tag Above Marker -->
           <div style="
             position: absolute;
-            top: -14px;
+            top: -11px;
             background: ${isNearest ? '#059669' : (isSelected ? '#dc2626' : '#1e293b')};
             color: #ffffff;
-            font-size: 9px;
-            font-weight: 800;
-            padding: 1.5px 6px;
-            border-radius: 8px;
+            font-size: 7.5px;
+            font-weight: 700;
+            padding: 0.5px 4px;
+            border-radius: 4px;
             white-space: nowrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.25);
             border: 1px solid rgba(255,255,255,0.7);
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
+            line-height: 1.1;
           ">
             ${badgeLabel}
           </div>
@@ -624,8 +624,8 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       const hospIcon = L.divIcon({
         html: hospitalPinHtml,
         className: 'custom-hosp-pin',
-        iconSize: [44, 44],
-        iconAnchor: [22, 22]
+        iconSize: [34, 34],
+        iconAnchor: [17, 17]
       });
 
       const marker = L.marker([hosp.lat, hosp.lng], { 
@@ -717,15 +717,15 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         <div style="
           background-color: ${isAvailable ? '#0284c7' : '#f59e0b'};
           color: white;
-          width: 30px;
-          height: 30px;
+          width: 24px;
+          height: 24px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 14px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-          border: 2px solid white;
+          font-size: 11px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+          border: 1.5px solid white;
         ">
           🚑
         </div>
@@ -734,8 +734,8 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       const ambIcon = L.divIcon({
         html: ambHtml,
         className: 'amb-pin',
-        iconSize: [30, 30],
-        iconAnchor: [15, 15]
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
       });
 
       const ambMarker = L.marker([amb.currentLat, amb.currentLng], { icon: ambIcon });
@@ -927,8 +927,8 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         ">
           <div style="
             position: absolute;
-            width: 44px;
-            height: 44px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background-color: rgba(239, 68, 68, 0.4);
             animation: ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
@@ -936,14 +936,14 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
           <div style="
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
-            width: 36px;
-            height: 36px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            box-shadow: 0 0 16px rgba(239, 68, 68, 0.9);
+            font-size: 13px;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.85);
             border: 2px solid white;
             z-index: 10;
           ">
@@ -955,8 +955,8 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       const ambPulseIcon = L.divIcon({
         html: ambPulseHtml,
         className: 'active-amb-live-siren',
-        iconSize: [36, 36],
-        iconAnchor: [18, 18]
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
       });
 
       const liveAmbMarker = L.marker([activeAmbulanceLocation.lat, activeAmbulanceLocation.lng], {
@@ -983,15 +983,17 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         <div style="
           background: linear-gradient(135deg, #2563eb, #1d4ed8);
           color: white;
-          padding: 4px 8px;
-          border-radius: 8px;
-          font-weight: 800;
-          font-size: 11px;
+          padding: 2px 6px;
+          border-radius: 6px;
+          font-weight: 700;
+          font-size: 8px;
           display: flex;
           align-items: center;
-          gap: 4px;
-          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
-          border: 2px solid white;
+          gap: 3px;
+          box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+          border: 1.5px solid white;
+          white-space: nowrap;
+          line-height: 1.1;
         ">
           <span>🏥</span>
           <span>${destinationLocation.name}</span>
@@ -1001,8 +1003,8 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       const destIcon = L.divIcon({
         html: destHtml,
         className: 'dest-hospital-pin',
-        iconSize: [120, 28],
-        iconAnchor: [60, 14]
+        iconSize: [100, 22],
+        iconAnchor: [50, 11]
       });
 
       const destMarker = L.marker([destinationLocation.lat, destinationLocation.lng], { icon: destIcon });
@@ -1050,26 +1052,26 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
     const headingDeg = liveAmbulance.heading || 0;
 
     const movingAmbHtml = `
-      <div style="position: relative; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+      <div style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
         <span style="
           position: absolute;
-          width: 48px;
-          height: 48px;
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
           background-color: rgba(239, 68, 68, 0.45);
           animation: ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
         "></span>
         <div style="
-          width: 36px;
-          height: 36px;
+          width: 26px;
+          height: 26px;
           border-radius: 50%;
           background: linear-gradient(135deg, #ef4444, #b91c1c);
-          border: 2.5px solid #ffffff;
-          box-shadow: 0 0 16px rgba(239, 68, 68, 0.95);
+          border: 2px solid #ffffff;
+          box-shadow: 0 0 10px rgba(239, 68, 68, 0.85);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 16px;
+          font-size: 13px;
           color: white;
           z-index: 20;
           position: relative;
@@ -1077,19 +1079,19 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
           🚑
           <div style="
             position: absolute;
-            top: -4px;
-            right: -4px;
-            width: 15px;
-            height: 15px;
+            top: -3px;
+            right: -3px;
+            width: 12px;
+            height: 12px;
             background: #ffffff;
             color: #b91c1c;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
             transform: rotate(${headingDeg}deg);
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 900;
           ">
             ▲
@@ -1097,16 +1099,17 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         </div>
         <div style="
           position: absolute;
-          bottom: -16px;
+          bottom: -13px;
           background: #991b1b;
           color: #ffffff;
-          font-size: 9px;
-          font-weight: 900;
-          padding: 1px 6px;
-          border-radius: 4px;
+          font-size: 7.5px;
+          font-weight: 700;
+          padding: 0.5px 4px;
+          border-radius: 3px;
           white-space: nowrap;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-          letter-spacing: 0.5px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+          letter-spacing: 0.2px;
+          line-height: 1.1;
         ">
           108 Ambulance
         </div>
@@ -1116,8 +1119,8 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
     const movingAmbIcon = L.divIcon({
       html: movingAmbHtml,
       className: 'live-moving-amb-marker',
-      iconSize: [48, 48],
-      iconAnchor: [24, 24]
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
     });
 
     const movingAmbMarker = L.marker([liveAmbulance.lat, liveAmbulance.lng], {
@@ -1181,11 +1184,11 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
 
       // 1. Suggested Handover Landmark Meeting Point Marker
       const meetingHtml = `
-        <div style="position: relative; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center;">
+        <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
           <span style="
             position: absolute;
-            width: 52px;
-            height: 52px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background-color: ${isArrived ? 'rgba(16, 185, 129, 0.65)' : 'rgba(245, 158, 11, 0.45)'};
             animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
@@ -1193,41 +1196,42 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
           <div style="
             position: relative;
             z-index: 10;
-            width: 38px;
-            height: 38px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             background: linear-gradient(135deg, #059669, #047857);
-            border: 3px solid #ffffff;
-            box-shadow: 0 4px 12px rgba(4, 120, 87, 0.6);
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 8px rgba(4, 120, 87, 0.6);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 14px;
             color: #ffffff;
           ">
             🤝
           </div>
           <div style="
             position: absolute;
-            bottom: -18px;
+            bottom: -13px;
             left: 50%;
             transform: translateX(-50%);
             white-space: nowrap;
             background: #064e3b;
             color: #ecfdf5;
-            font-size: 9px;
-            font-weight: 800;
-            padding: 1.5px 7px;
-            border-radius: 6px;
+            font-size: 7.5px;
+            font-weight: 700;
+            padding: 0.5px 4px;
+            border-radius: 4px;
             border: 1px solid #10b981;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-            letter-spacing: 0.5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+            letter-spacing: 0.2px;
+            line-height: 1.1;
           ">
-            ${isArrived ? 'MEETING POINT (ARRIVED)' : 'HANDOVER POINT'}
+            ${isArrived ? 'Handover (Arrived)' : 'Handover Point'}
           </div>
         </div>
       `;
-      const meetingIcon = L.divIcon({ html: meetingHtml, className: 'meeting-point-icon', iconSize: [52, 52], iconAnchor: [26, 26] });
+      const meetingIcon = L.divIcon({ html: meetingHtml, className: 'meeting-point-icon', iconSize: [38, 38], iconAnchor: [19, 19] });
       const meetingMarker = L.marker([activeHandover.meetingLat, activeHandover.meetingLng], { icon: meetingIcon, zIndexOffset: 1300 });
       meetingMarker.bindPopup(`
         <div style="font-family: 'Inter', system-ui, sans-serif; min-width: 250px; padding: 2px;">
@@ -1256,11 +1260,11 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       // 2. Caretaker Moving Vehicle Marker
       if (caretakerTelemetry && activeHandover.status !== 'HANDOVER_COMPLETED') {
         const caretakerHtml = `
-          <div style="position: relative; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;">
+          <div style="position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;">
             <span style="
               position: absolute;
-              width: 46px;
-              height: 46px;
+              width: 34px;
+              height: 34px;
               border-radius: 50%;
               background-color: rgba(245, 158, 11, 0.4);
               animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
@@ -1268,40 +1272,42 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
             <div style="
               position: relative;
               z-index: 10;
-              width: 34px;
-              height: 34px;
+              width: 25px;
+              height: 25px;
               border-radius: 50%;
               background: linear-gradient(135deg, #d97706, #b45309);
-              border: 2.5px solid #ffffff;
-              box-shadow: 0 4px 10px rgba(180, 83, 9, 0.5);
+              border: 2px solid #ffffff;
+              box-shadow: 0 2px 8px rgba(180, 83, 9, 0.5);
               display: flex;
               align-items: center;
               justify-content: center;
-              font-size: 16px;
+              font-size: 13px;
               color: #ffffff;
             ">
               🛵
             </div>
             <div style="
               position: absolute;
-              bottom: -16px;
+              bottom: -13px;
               left: 50%;
               transform: translateX(-50%);
               white-space: nowrap;
               background: #78350f;
               color: #fef3c7;
-              font-size: 9px;
-              font-weight: 800;
-              padding: 1px 6px;
-              border-radius: 6px;
+              font-size: 7.5px;
+              font-weight: 700;
+              padding: 0.5px 4px;
+              border-radius: 4px;
               border: 1px solid #f59e0b;
-              box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+              box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+              letter-spacing: 0.2px;
+              line-height: 1.1;
             ">
-              YOU
+              Your Vehicle
             </div>
           </div>
         `;
-        const caretakerIcon = L.divIcon({ html: caretakerHtml, className: 'caretaker-vehicle-icon', iconSize: [46, 46], iconAnchor: [23, 23] });
+        const caretakerIcon = L.divIcon({ html: caretakerHtml, className: 'caretaker-vehicle-icon', iconSize: [34, 34], iconAnchor: [17, 17] });
         const caretakerMarker = L.marker([caretakerTelemetry.lat, caretakerTelemetry.lng], { icon: caretakerIcon, zIndexOffset: 1250 });
         caretakerMarker.bindPopup(`
           <div style="font-family: 'Inter', system-ui, sans-serif; min-width: 220px; padding: 2px;">
