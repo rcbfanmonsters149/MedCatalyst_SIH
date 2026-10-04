@@ -1103,6 +1103,12 @@ export function calculateHaversineKm(lat1: number, lon1: number, lat2: number, l
   return Math.round(R * c * 10) / 10;
 }
 
+export const DEFAULT_ANCHOR_LOCATION = {
+  lat: 28.7080,
+  lng: 77.0980,
+  areaName: 'Rampur, Delhi NCR'
+};
+
 function createLocalizedHospitals(baseLat: number, baseLng: number, areaName: string, template: Hospital[]): Hospital[] {
   const t0 = template[0] || INITIAL_HOSPITALS[0];
   const t1 = template[1] || INITIAL_HOSPITALS[1];
@@ -1236,11 +1242,18 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [hospitals, setHospitals] = useState<Hospital[]>(() => {
     if (typeof window !== 'undefined') {
-      const geoVer = localStorage.getItem('medcatalyst_geo_v2');
+      const geoVer = localStorage.getItem('medcatalyst_geo_v4');
       if (!geoVer) {
         localStorage.removeItem('medcatalyst_hospitals');
         localStorage.removeItem('medcatalyst_ambulances');
-        localStorage.setItem('medcatalyst_geo_v2', 'true');
+        localStorage.removeItem('medcatalyst_user_location');
+        localStorage.removeItem('sanjeevani_user_location');
+        localStorage.removeItem('sanjeevani_hospitals');
+        localStorage.removeItem('medcatalyst_active_dispatch');
+        localStorage.removeItem('sanjeevani_active_dispatch');
+        localStorage.removeItem('medcatalyst_caretaker_telemetry');
+        localStorage.removeItem('medcatalyst_handover_data');
+        localStorage.setItem('medcatalyst_geo_v4', 'true');
       }
     }
     const saved = localStorage.getItem('medcatalyst_hospitals') || localStorage.getItem('sanjeevani_hospitals');
@@ -2027,20 +2040,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   // User's detected live GPS location
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number; areaName?: string } | null>(() => {
-    const saved = localStorage.getItem('medcatalyst_user_location');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+  // User's detected live GPS location (always defaults to DEFAULT_ANCHOR_LOCATION if no valid cache exists)
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number; areaName?: string }>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('medcatalyst_user_location');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed.lat === 'number' && typeof parsed.lng === 'number' && !isNaN(parsed.lat)) {
+            return parsed;
+          }
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
-    return null;
+    return DEFAULT_ANCHOR_LOCATION;
   });
 
-  // Relocate the entire hospital, ambulance, and emergency dispatch network dynamically around the user's real GPS position
+  // Relocate the entire hospital, ambulance, and emergency dispatch network dynamically around the user's real GPS / IP position
   const relocateToUserLocation = useCallback((lat: number, lng: number, customAreaName?: string) => {
+    if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng) || (lat === 0 && lng === 0)) {
+      lat = DEFAULT_ANCHOR_LOCATION.lat;
+      lng = DEFAULT_ANCHOR_LOCATION.lng;
+    }
+
     const area = customAreaName || (userLocation?.areaName) || 'Local Area';
     const newLoc = { lat, lng, areaName: area };
     setUserLocation(newLoc);
@@ -2091,7 +2115,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return updated;
     });
 
-    // In background, reverse-geocode using OpenStreetMap Nominatim
+    // In background, reverse-geocode area name without triggering duplicate re-renders
     if (!customAreaName) {
       try {
         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
@@ -2100,17 +2124,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const addr = data.address || {};
             const resolvedCity = addr.suburb || addr.neighbourhood || addr.city_district || addr.town || addr.city || addr.county || '';
             if (resolvedCity && resolvedCity.toLowerCase() !== 'local area') {
-              relocateToUserLocation(lat, lng, resolvedCity);
+              setUserLocation(l => ({ ...l, areaName: resolvedCity }));
+              try {
+                localStorage.setItem('medcatalyst_user_location', JSON.stringify({ lat, lng, areaName: resolvedCity }));
+              } catch (e) {}
             }
           })
           .catch(() => {
-            // Fallback to client geocode
             fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`)
               .then(res => res.json())
               .then(data => {
                 const resolvedCity = data.locality || data.city || data.principalSubdivision || '';
                 if (resolvedCity && resolvedCity.toLowerCase() !== 'local area') {
-                  relocateToUserLocation(lat, lng, resolvedCity);
+                  setUserLocation(l => ({ ...l, areaName: resolvedCity }));
+                  try {
+                    localStorage.setItem('medcatalyst_user_location', JSON.stringify({ lat, lng, areaName: resolvedCity }));
+                  } catch (e) {}
                 }
               })
               .catch(() => {});
@@ -2119,20 +2148,64 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [userLocation?.areaName]);
 
-  // Query browser geolocation on initial mount
+  // Query browser geolocation on initial mount with automatic zero-permission IP fallback
   useEffect(() => {
+    let isCancelled = false;
+
+    const fallbackToIpOrAnchor = () => {
+      fetch('https://api.bigdatacloud.net/data/reverse-geocode-client')
+        .then(res => res.json())
+        .then(data => {
+          if (isCancelled) return;
+          if (data && typeof data.latitude === 'number' && typeof data.longitude === 'number' && data.latitude !== 0) {
+            const cityName = data.locality || data.city || data.principalSubdivision || 'Local Area';
+            relocateToUserLocation(data.latitude, data.longitude, cityName);
+          } else {
+            relocateToUserLocation(DEFAULT_ANCHOR_LOCATION.lat, DEFAULT_ANCHOR_LOCATION.lng, DEFAULT_ANCHOR_LOCATION.areaName);
+          }
+        })
+        .catch(err => {
+          console.warn('IP geocode fallback notice:', err);
+          if (!isCancelled) {
+            relocateToUserLocation(DEFAULT_ANCHOR_LOCATION.lat, DEFAULT_ANCHOR_LOCATION.lng, DEFAULT_ANCHOR_LOCATION.areaName);
+          }
+        });
+    };
+
     if (typeof window !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
+          if (isCancelled) return;
           relocateToUserLocation(pos.coords.latitude, pos.coords.longitude);
         },
         (err) => {
-          console.log('GPS notice:', err.message);
+          console.log('GPS permission not granted or timeout:', err.message);
+          // When permission is not granted, immediately fallback to IP geolocation so user gets nearby hospitals without prompt!
+          fallbackToIpOrAnchor();
         },
-        { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+        { enableHighAccuracy: true, timeout: 6000, maximumAge: 60000 }
       );
+    } else {
+      fallbackToIpOrAnchor();
     }
+
+    return () => {
+      isCancelled = true;
+    };
   }, [relocateToUserLocation]);
+
+  // Proximity Self-Healing Guard: Invariant ensuring hospitals and ambulances are ALWAYS near the user
+  useEffect(() => {
+    if (!userLocation || !hospitals || hospitals.length === 0) return;
+    const primaryHosp = hospitals[0];
+    const dist = calculateHaversineKm(userLocation.lat, userLocation.lng, primaryHosp.lat, primaryHosp.lng);
+
+    // If hospitals drift > 25 km from user coordinates, auto-realign healthcare network immediately
+    if (dist > 25) {
+      console.warn(`[Geo Sync Guard] Desynchronization detected (${dist} km gap). Auto-realigning facilities to user location...`);
+      relocateToUserLocation(userLocation.lat, userLocation.lng, userLocation.areaName);
+    }
+  }, [userLocation, hospitals, relocateToUserLocation]);
 
   // ============================================================================
   // MIDWAY AMBULANCE HANDOVER / MEET-ME EMERGENCY MODE
@@ -2213,8 +2286,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const recalculateMeetingPointManual = useCallback(async () => {
     if (!activeDispatch) return;
-    const patientLat = caretakerTelemetry?.lat || activeDispatch.pickupLat || userLocation?.lat || 28.7080;
-    const patientLng = caretakerTelemetry?.lng || activeDispatch.pickupLng || userLocation?.lng || 77.0980;
+    const patientLat = caretakerTelemetry?.lat || activeDispatch.pickupLat || userLocation?.lat || DEFAULT_ANCHOR_LOCATION.lat;
+    const patientLng = caretakerTelemetry?.lng || activeDispatch.pickupLng || userLocation?.lng || DEFAULT_ANCHOR_LOCATION.lng;
     const targetHosp = hospitals.find(h => h.id === activeDispatch.currentHospitalId) || hospitals[0] || INITIAL_HOSPITALS[0];
     const assignedAmb = ambulances.find(a => a.id === activeDispatch.assignedAmbulanceId) || ambulances[0];
     const ambLat = assignedAmb.currentLat;
@@ -2264,8 +2337,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     customLandmark?: HandoverLandmark
   ) => {
     if (!activeDispatch) return;
-    const patientLat = caretakerTelemetry?.lat || activeDispatch.pickupLat || userLocation?.lat || 28.7080;
-    const patientLng = caretakerTelemetry?.lng || activeDispatch.pickupLng || userLocation?.lng || 77.0980;
+    const patientLat = caretakerTelemetry?.lat || activeDispatch.pickupLat || userLocation?.lat || DEFAULT_ANCHOR_LOCATION.lat;
+    const patientLng = caretakerTelemetry?.lng || activeDispatch.pickupLng || userLocation?.lng || DEFAULT_ANCHOR_LOCATION.lng;
     const targetHosp = hospitals.find(h => h.id === activeDispatch.currentHospitalId) || hospitals[0] || INITIAL_HOSPITALS[0];
     const assignedAmb = ambulances.find(a => a.id === activeDispatch.assignedAmbulanceId) || ambulances[0];
     const ambLat = assignedAmb.currentLat;
@@ -2421,11 +2494,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
 
-    const patientLat = activeDispatch.pickupLat || userLocation?.lat || 18.7479;
-    const patientLng = activeDispatch.pickupLng || userLocation?.lng || 73.7144;
     const targetHosp = hospitals.find(h => h.id === activeDispatch.currentHospitalId) || hospitals[0] || INITIAL_HOSPITALS[0];
     const hospLat = targetHosp.lat;
     const hospLng = targetHosp.lng;
+
+    let patientLat = activeDispatch.pickupLat || userLocation?.lat || DEFAULT_ANCHOR_LOCATION.lat;
+    let patientLng = activeDispatch.pickupLng || userLocation?.lng || DEFAULT_ANCHOR_LOCATION.lng;
+
+    // Safety guard: if patient coordinates are > 30km from destination hospital, snap patient to local vicinity of the hospital
+    if (calculateHaversineKm(patientLat, patientLng, hospLat, hospLng) > 30) {
+      patientLat = Math.round((hospLat - 0.0210) * 10000) / 10000;
+      patientLng = Math.round((hospLng - 0.0170) * 10000) / 10000;
+    }
 
     const assignedAmb = ambulances.find(a => a.id === activeDispatch.assignedAmbulanceId) || ambulances[0];
     const originLat = assignedAmb?.currentLat ?? (patientLat + 0.0075);
@@ -2479,11 +2559,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const timer = setInterval(() => {
       setLiveAmbulance(prev => {
-        const patientLat = activeDispatch.pickupLat || userLocation?.lat || 18.7479;
-        const patientLng = activeDispatch.pickupLng || userLocation?.lng || 73.7144;
         const targetHosp = hospitals.find(h => h.id === activeDispatch.currentHospitalId) || hospitals[0] || INITIAL_HOSPITALS[0];
         const hospLat = targetHosp.lat;
         const hospLng = targetHosp.lng;
+
+        let patientLat = activeDispatch.pickupLat || userLocation?.lat || DEFAULT_ANCHOR_LOCATION.lat;
+        let patientLng = activeDispatch.pickupLng || userLocation?.lng || DEFAULT_ANCHOR_LOCATION.lng;
+
+        // Safety guard: if patient coordinates are > 30km from destination hospital, snap patient to local vicinity of the hospital
+        if (calculateHaversineKm(patientLat, patientLng, hospLat, hospLng) > 30) {
+          patientLat = Math.round((hospLat - 0.0210) * 10000) / 10000;
+          patientLng = Math.round((hospLng - 0.0170) * 10000) / 10000;
+        }
 
         // Origin ambulance station/depot
         const assignedAmb = ambulances.find(a => a.id === activeDispatch.assignedAmbulanceId) || ambulances[0];
@@ -3169,13 +3256,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const createEmergencyDispatch = (issueText: string, voiceTranscript?: string, urgency: 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL' = 'CRITICAL', targetHospitalId?: string) => {
-    const pickupLat = userLocation?.lat ?? 28.7080;
-    const pickupLng = userLocation?.lng ?? 77.0980;
+    const pickupLat = userLocation?.lat ?? DEFAULT_ANCHOR_LOCATION.lat;
+    const pickupLng = userLocation?.lng ?? DEFAULT_ANCHOR_LOCATION.lng;
+
+    // Ensure localized fleet and hospital network in patient vicinity
+    let activeHospitals = hospitals;
+    let activeAmbulances = ambulances;
+    if (activeHospitals.length === 0 || calculateHaversineKm(pickupLat, pickupLng, activeHospitals[0].lat, activeHospitals[0].lng) > 25) {
+      activeHospitals = createLocalizedHospitals(pickupLat, pickupLng, userLocation?.areaName || DEFAULT_ANCHOR_LOCATION.areaName, INITIAL_HOSPITALS);
+      activeAmbulances = createLocalizedAmbulances(pickupLat, pickupLng, userLocation?.areaName || DEFAULT_ANCHOR_LOCATION.areaName, INITIAL_AMBULANCES);
+      setHospitals(activeHospitals);
+      setAmbulances(activeAmbulances);
+    }
 
     // 1. NEAREST AMBULANCE FIRST ARCHITECTURE:
     // Compute spherical distance (Haversine) from patient's GPS coordinates to ALL available fleet ambulances
-    const availablePool = ambulances.filter(a => a.status === 'AVAILABLE');
-    const fleet = availablePool.length > 0 ? availablePool : ambulances;
+    const availablePool = activeAmbulances.filter(a => a.status === 'AVAILABLE');
+    const fleet = availablePool.length > 0 ? availablePool : activeAmbulances;
 
     const rankedAmbulances = fleet.map(amb => {
       // Haversine distance in kilometers
@@ -3193,7 +3290,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }).sort((a, b) => a.distanceKm - b.distanceKm);
 
     // Physically closest vehicle to the patient
-    const nearestAmb = rankedAmbulances[0];
+    const nearestAmb = rankedAmbulances[0] || activeAmbulances[0];
 
     // Immediately dispatch the closest ambulance to minimize critical pickup wait time
     updateAmbulanceStatus(nearestAmb.id, 'DISPATCHED');
@@ -3203,8 +3300,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // 2. Nearest hospital contacted in parallel for emergency bed reservation
     const nearestHosp = targetHospitalId 
-      ? (hospitals.find(h => h.id === targetHospitalId) || hospitals[0]) 
-      : hospitals[0];
+      ? (activeHospitals.find(h => h.id === targetHospitalId) || activeHospitals[0]) 
+      : activeHospitals[0];
 
     const newDispatch: EmergencyDispatch = {
       id: `disp-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,

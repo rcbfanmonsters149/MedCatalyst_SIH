@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp, DEFAULT_ANCHOR_LOCATION } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
 import { Phone, Zap, ChevronUp, ChevronDown, Activity, Navigation, Clock, MapPin, Truck } from './icons';
 
@@ -8,7 +8,7 @@ interface LiveAmbulanceTrackerCardProps {
 }
 
 export const LiveAmbulanceTrackerCard: React.FC<LiveAmbulanceTrackerCardProps> = ({ className = '' }) => {
-  const { liveAmbulance, cancelDispatch, activeDispatch, hospitals } = useApp();
+  const { liveAmbulance, cancelDispatch, activeDispatch, hospitals, userLocation } = useApp();
   const { tr, language } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -30,8 +30,8 @@ export const LiveAmbulanceTrackerCard: React.FC<LiveAmbulanceTrackerCardProps> =
   });
 
   const patientPickupAddress = activeDispatch?.pickupAddress || (language === 'mr' ? 'नागरिक थेट स्थान' : language === 'hi' ? 'नागरिक लाइव स्थान' : 'User Live Location');
-  const patientPickupLat = liveAmbulance.pickupLat || activeDispatch?.pickupLat || 28.7080;
-  const patientPickupLng = liveAmbulance.pickupLng || activeDispatch?.pickupLng || 77.0980;
+  const patientPickupLat = liveAmbulance.pickupLat || activeDispatch?.pickupLat || userLocation?.lat || DEFAULT_ANCHOR_LOCATION.lat;
+  const patientPickupLng = liveAmbulance.pickupLng || activeDispatch?.pickupLng || userLocation?.lng || DEFAULT_ANCHOR_LOCATION.lng;
 
   const ambLocationLabel = liveAmbulance.phase === 'EN_ROUTE_TO_PATIENT' 
     ? (language === 'mr' ? 'पिकअप स्थानाकडे मार्गक्रमण' : language === 'hi' ? 'पिकअप स्थान की ओर अग्रसर' : 'Approaching User Pickup Point')

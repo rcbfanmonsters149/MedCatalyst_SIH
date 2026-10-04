@@ -24,11 +24,10 @@ import {
   Pill,
   Stethoscope
 } from '../icons';
-import { useApp } from '../../context/AppContext';
+import { useApp, DEFAULT_ANCHOR_LOCATION } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Hospital } from '../../types';
 import { Link } from 'react-router-dom';
-import { EmergencyTrackerCard } from '../EmergencyTrackerCard';
 import { LeafletMap } from '../LeafletMap';
 import { LiveAmbulanceTrackerCard } from '../LiveAmbulanceTrackerCard';
 import { HospitalEmergencyPatientRecordsModal } from './HospitalEmergencyPatientRecordsModal';
@@ -52,11 +51,11 @@ export const HospitalEmergencyTab: React.FC<HospitalEmergencyTabProps> = ({
     ambulances, 
     ambulanceAssessment,
     sendDispatchMessage,
-    updateDispatchStep,
     hospitals,
     liveAmbulance,
     user,
-    createEmergencyDispatch
+    createEmergencyDispatch,
+    userLocation
   } = useApp();
   const { tr, language } = useLanguage();
 
@@ -94,7 +93,11 @@ export const HospitalEmergencyTab: React.FC<HospitalEmergencyTabProps> = ({
 
   const pickupLocation = activeDispatch 
     ? { lat: activeDispatch.pickupLat, lng: activeDispatch.pickupLng, label: activeDispatch.pickupAddress }
-    : { lat: 28.7080, lng: 77.0980, label: 'Near Village Rampur Chowk' };
+    : { 
+        lat: userLocation?.lat ?? DEFAULT_ANCHOR_LOCATION.lat, 
+        lng: userLocation?.lng ?? DEFAULT_ANCHOR_LOCATION.lng, 
+        label: userLocation?.areaName ? `Near ${userLocation.areaName}` : 'Near Local Healthcare Center' 
+      };
 
   const ambLat = liveAmbulance?.lat ?? assignedAmbulance.currentLat;
   const ambLng = liveAmbulance?.lng ?? assignedAmbulance.currentLng;
@@ -259,26 +262,6 @@ export const HospitalEmergencyTab: React.FC<HospitalEmergencyTabProps> = ({
               <span>🚨 Start Inbound SOS Simulation</span>
             </button>
           </div>
-        </div>
-      )}
-
-      {/* 10-Stage Incident Progress Tracker Card */}
-      {activeDispatch && (
-        <div className="flex justify-center">
-          <EmergencyTrackerCard
-            incidentId={activeDispatch.id}
-            title={activeDispatch.callerIssue}
-            urgency={activeDispatch.urgencyLevel === 'CRITICAL' ? 'Critical' : (activeDispatch.urgencyLevel === 'HIGH' ? 'High' : 'Moderate')}
-            patientCount={activeDispatch.patientCount || 1}
-            currentStep={activeDispatch.currentStep || 3}
-            onStepChange={(step) => {
-              if (activeDispatch.currentStep !== step) {
-                updateDispatchStep(step);
-                onNotify(`Incident stage updated to Step ${step}. Synchronized across grid!`);
-              }
-            }}
-            className="w-full shadow-md"
-          />
         </div>
       )}
 

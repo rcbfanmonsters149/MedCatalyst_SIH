@@ -24,7 +24,7 @@ import {
   ChevronRight,
   RotateCcw
 } from '../components/icons';
-import { useApp } from '../context/AppContext';
+import { useApp, DEFAULT_ANCHOR_LOCATION } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { Link } from 'react-router-dom';
@@ -48,6 +48,7 @@ export const AmbulanceDashboard: React.FC = () => {
     greenCorridorActive,
     setGreenCorridorActive,
     updateDispatchStep,
+    userLocation,
     sendDispatchMessage,
     activeHandover,
     caretakerTelemetry,
@@ -88,7 +89,11 @@ export const AmbulanceDashboard: React.FC = () => {
 
   const pickupLocation = activeDispatch 
     ? { lat: activeDispatch.pickupLat, lng: activeDispatch.pickupLng, label: activeDispatch.pickupAddress }
-    : { lat: 28.7080, lng: 77.0980, label: 'Near Village Rampur Chowk' };
+    : { 
+        lat: userLocation?.lat ?? DEFAULT_ANCHOR_LOCATION.lat, 
+        lng: userLocation?.lng ?? DEFAULT_ANCHOR_LOCATION.lng, 
+        label: userLocation?.areaName ? `Near ${userLocation.areaName}` : 'Near Local Healthcare Center' 
+      };
 
   const messageCount = activeDispatch?.messages?.length || 0;
 

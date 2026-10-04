@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import L from 'leaflet';
 import { Hospital, Ambulance, TrafficSignal } from '../types';
 import { Navigation, Locate, ExternalLink, MapPin, Compass, AlertCircle, Phone, Activity, Zap, ChevronUp, ChevronDown, Clock, ShieldCheck, Plus, Minus } from './icons';
-import { useApp } from '../context/AppContext';
+import { useApp, DEFAULT_ANCHOR_LOCATION } from '../context/AppContext';
 import { fetchRoadRoute, RoadRouteResult } from '../utils/routing';
 
 interface LeafletMapProps {
@@ -132,7 +132,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         console.warn('Geolocation lookup notice:', err.message);
         setIsLocating(false);
         if (err.code === err.PERMISSION_DENIED) {
-          setLocationError('Location permission denied. Using default regional center.');
+          setLocationError('Location permission not granted. Regional healthcare network active.');
         }
       },
       {
@@ -155,13 +155,33 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
     }
   }, [contextUserLocation]);
 
-  // Stable memoized anchor position for distance & route calculations
+  // Stable memoized anchor position for distance & route calculations (guaranteed proximity to hospitals)
   const effectiveUserCoords = useMemo(() => {
-    if (pickupLocation) return { lat: pickupLocation.lat, lng: pickupLocation.lng };
-    if (userLocation) return { lat: userLocation.lat, lng: userLocation.lng };
-    if (contextUserLocation) return { lat: contextUserLocation.lat, lng: contextUserLocation.lng };
-    return { lat: 28.7080, lng: 77.0980 };
-  }, [userLocation?.lat, userLocation?.lng, contextUserLocation?.lat, contextUserLocation?.lng, pickupLocation?.lat, pickupLocation?.lng]);
+    const baseHosp = hospitals && hospitals.length > 0 ? hospitals[0] : null;
+
+    if (pickupLocation && typeof pickupLocation.lat === 'number') {
+      if (!baseHosp || calculateHaversineKm(pickupLocation.lat, pickupLocation.lng, baseHosp.lat, baseHosp.lng) <= 35) {
+        return { lat: pickupLocation.lat, lng: pickupLocation.lng };
+      }
+    }
+    if (userLocation && typeof userLocation.lat === 'number') {
+      if (!baseHosp || calculateHaversineKm(userLocation.lat, userLocation.lng, baseHosp.lat, baseHosp.lng) <= 35) {
+        return { lat: userLocation.lat, lng: userLocation.lng };
+      }
+    }
+    if (contextUserLocation && typeof contextUserLocation.lat === 'number') {
+      if (!baseHosp || calculateHaversineKm(contextUserLocation.lat, contextUserLocation.lng, baseHosp.lat, baseHosp.lng) <= 35) {
+        return { lat: contextUserLocation.lat, lng: contextUserLocation.lng };
+      }
+    }
+    if (baseHosp) {
+      return {
+        lat: Math.round((baseHosp.lat - 0.0210) * 10000) / 10000,
+        lng: Math.round((baseHosp.lng - 0.0170) * 10000) / 10000
+      };
+    }
+    return { lat: DEFAULT_ANCHOR_LOCATION.lat, lng: DEFAULT_ANCHOR_LOCATION.lng };
+  }, [userLocation?.lat, userLocation?.lng, contextUserLocation?.lat, contextUserLocation?.lng, pickupLocation?.lat, pickupLocation?.lng, hospitals]);
 
   // Calculate nearest hospital from user's current GPS position
   const nearestHospital = useMemo(() => {

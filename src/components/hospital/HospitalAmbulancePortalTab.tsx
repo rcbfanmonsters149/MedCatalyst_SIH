@@ -20,7 +20,7 @@ import {
   RefreshCw,
   Check
 } from '../icons';
-import { useApp } from '../../context/AppContext';
+import { useApp, DEFAULT_ANCHOR_LOCATION } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { 
   evaluateAmbulanceAssessment, 
@@ -49,7 +49,8 @@ export const HospitalAmbulancePortalTab: React.FC<HospitalAmbulancePortalTabProp
     transferPatientDataToAssessment,
     user,
     ambulanceUser,
-    ambulances
+    ambulances,
+    userLocation
   } = useApp();
   const { tr, language } = useLanguage();
 
@@ -198,7 +199,11 @@ export const HospitalAmbulancePortalTab: React.FC<HospitalAmbulancePortalTabProp
 
   const pickupLocation = activeDispatch 
     ? { lat: activeDispatch.pickupLat, lng: activeDispatch.pickupLng, label: activeDispatch.pickupAddress }
-    : { lat: 28.7080, lng: 77.0980, label: 'Near Village Rampur Chowk' };
+    : { 
+        lat: userLocation?.lat ?? DEFAULT_ANCHOR_LOCATION.lat, 
+        lng: userLocation?.lng ?? DEFAULT_ANCHOR_LOCATION.lng, 
+        label: userLocation?.areaName ? `Near ${userLocation.areaName}` : 'Near Local Healthcare Center' 
+      };
 
   return (
     <div className="bg-white space-y-6">

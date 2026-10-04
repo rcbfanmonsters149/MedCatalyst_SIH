@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp, DEFAULT_ANCHOR_LOCATION } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
 import { 
   X, 
@@ -95,8 +95,8 @@ export const RendezvousTravelModal: React.FC<RendezvousTravelModalProps> = ({
       try {
         const assignedAmb = ambulances.find(a => a.id === activeDispatch.assignedAmbulanceId) || ambulances[0];
         const targetHosp = hospitals.find(h => h.id === activeDispatch.currentHospitalId) || hospitals[0];
-        const patientLat = activeDispatch.pickupLat || userLocation?.lat || 28.7080;
-        const patientLng = activeDispatch.pickupLng || userLocation?.lng || 77.0980;
+        const patientLat = activeDispatch.pickupLat || userLocation?.lat || DEFAULT_ANCHOR_LOCATION.lat;
+        const patientLng = activeDispatch.pickupLng || userLocation?.lng || DEFAULT_ANCHOR_LOCATION.lng;
         const ambLat = assignedAmb.currentLat;
         const ambLng = assignedAmb.currentLng;
 
