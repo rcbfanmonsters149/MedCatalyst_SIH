@@ -305,7 +305,7 @@ export const en = {
     greenCorridorInactive: "Normal Traffic Conditions",
     paramedicAssessment: "Paramedic Clinical Assessment & Telemetry",
     clinicalAssessmentTab: "Pre-Hospital Clinical Assessment & AI Triage",
-    dispatchTrackerTab: "Incident Dispatch & 10-Stage Tracker",
+    dispatchTrackerTab: "Incident Dispatch & Live Navigation",
     radioCommsTab: "2-Way Emergency Radio Channel",
     requestGreenWave: "Request Green Wave",
     greenCorridorActiveBadge: "🟢 Green Corridor Active",

@@ -307,7 +307,7 @@ export const mr: TranslationSchema = {
     greenCorridorInactive: "सामान्य वाहतूक स्थिती",
     paramedicAssessment: "पॅरामेडिक क्लिनिकल मूल्यांकन व टेलिमेट्री",
     clinicalAssessmentTab: "रुग्णालय-पूर्व क्लिनिकल मूल्यांकन व AI ट्रायज",
-    dispatchTrackerTab: "घटना प्रेषण व १०-टप्पे ट्रॅकर",
+    dispatchTrackerTab: "घटना प्रेषण व थेट नेव्हिगेशन",
     radioCommsTab: "२-मार्गी आपत्कालीन रेडिओ चॅनेल",
     requestGreenWave: "ग्रीन वेव्हची विनंती करा",
     greenCorridorActiveBadge: "🟢 ग्रीन कॉरिडॉर सक्रिय",

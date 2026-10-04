@@ -27,7 +27,6 @@ import { useApp, DEFAULT_ANCHOR_LOCATION } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { HospitalAmbulancePortalTab } from '../components/hospital/HospitalAmbulancePortalTab';
-import { EmergencyTrackerCard } from '../components/EmergencyTrackerCard';
 import { LeafletMap } from '../components/LeafletMap';
 import { PortalsDropdown } from '../components/PortalsDropdown';
 
@@ -182,7 +181,7 @@ export const AmbulanceDashboard: React.FC = () => {
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
                 activeTab === 'dispatch' ? 'bg-blue-700 text-white' : 'bg-red-50 text-red-700'
               }`}>
-                Step {activeDispatch.currentStep || 4}/10
+                Active SOS
               </span>
             )}
           </button>
@@ -413,20 +412,6 @@ export const AmbulanceDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                </div>
-
-                {/* Embedded 10-Stage Incident Progress Tracker Card */}
-                <div className="pt-2">
-                  <EmergencyTrackerCard
-                    incidentId={activeDispatch.id}
-                    title={activeDispatch.callerIssue}
-                    urgency={activeDispatch.urgencyLevel === 'CRITICAL' ? 'Critical' : (activeDispatch.urgencyLevel === 'HIGH' ? 'High' : 'Moderate')}
-                    patientCount={activeDispatch.patientCount || 1}
-                    currentStep={activeDispatch.currentStep || 4}
-                    onStepChange={(step) => updateDispatchStep(step)}
-                    showControls={true}
-                    className="w-full shadow-xs text-slate-800"
-                  />
                 </div>
 
                 {/* Map View */}
